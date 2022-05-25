@@ -1,0 +1,6 @@
+module Pods_FoodApplication {
+  umbrella header "Pods-FoodApplication-umbrella.h"
+
+  export *
+  module * { export * }
+}
