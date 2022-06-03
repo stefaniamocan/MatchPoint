@@ -16,6 +16,7 @@ import OverviewScreen from '../screens/OverviewScreen';
 import MessagingScreen from '../screens/MessagingScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import Header from '../components/Header';
+import {authentication} from '../api/firebase';
 
 const fullScreenWidth = Dimensions.get('window').width;
 

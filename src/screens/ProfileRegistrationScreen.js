@@ -15,53 +15,167 @@ import Input from '../components/Input';
 import GeneralButton from '../components/GeneralButton';
 import TextButton from '../components/TextButton';
 import Feather from 'react-native-vector-icons/Feather';
+import ImagePicker from 'react-native-image-crop-picker';
+import placheHolderImage from '../assets/profilePlaceHolder.jpg';
 import {withNavigation} from 'react-navigation';
-
+import {
+  collection,
+  getDoc,
+  setDoc,
+  doc,
+  addDoc,
+  updateDoc,
+} from 'firebase/firestore';
 import {authentication} from '../api/firebase';
 import {db} from '../api/firebase';
+import {storage} from '../api/firebase';
+import {getStorage, uploadBytes, ref, getDownloadURL} from 'firebase/storage';
 import {createUserWithEmailAndPassword, updateProfile} from 'firebase/auth';
 
 const ProfileRegistrationScreen = ({navigation}) => {
+  //get placheholder image from local asset to uri
+  const placheHolderImageURI = Image.resolveAssetSource(placheHolderImage).uri;
+  console.log(placheHolderImageURI);
   const [username, setUsername] = useState(
     authentication.currentUser.displayName,
   );
   const [bio, setBio] = useState('');
+  const [photoURL, setProfileImage] = useState(placheHolderImageURI);
 
-  // const handleProfileRegistration = () => {
-  //     createUserWithEmailAndPassword(authentication, email.trim(), password)
-  //       .then(() => {
-  //         newFirestoreUser();
-  //         navigation.navigate('GenderPicker');
-  //       })
-  //       .catch((error, re) => {
-  //         alert(error.message);
-  //         console.log(re);
-  //       });
-  //   }
-  // };
+  const storeBio = () => {
+    const userDocRef = doc(db, 'users', authentication.currentUser.email);
+    setDoc(userDocRef, {bio: bio}, {merge: true}).then(() => {
+      navigation.navigate('GenderPicker');
+    });
+  };
+
+  //select image
+  const selectFromGalleryWithCrop = async () => {
+    await ImagePicker.openPicker({
+      width: 500,
+      height: 500,
+      cropping: true,
+      mediaType: 'photo',
+      path: 'images',
+      cropperCircleOverlay: true,
+      includeBase64: true,
+    })
+      .then(image => {
+        setProfileImage(image.path);
+      })
+      .catch((error, re) => {
+        alert(error.message);
+        console.log(re);
+      });
+  };
+
+  const openCameraWithCrop = async () => {
+    await ImagePicker.openCamera({
+      width: 500,
+      height: 500,
+      cropping: true,
+      mediaType: 'photo',
+      cropperCircleOverlay: true,
+      path: 'images',
+      includeBase64: true,
+    })
+      .then(image => {
+        setProfileImage(image.path);
+      })
+      .catch((error, re) => {
+        alert(error.message);
+        console.log(re);
+      });
+  };
+
+  const changeImageOrGallery = () => {
+    Alert.alert(
+      'Choose modality',
+      'Choose your modality for choosing to pick image',
+      [
+        {
+          text: 'Pick image',
+          onPress: () => selectFromGalleryWithCrop(),
+          style: 'default',
+        },
+        {
+          text: 'Take a photo',
+          onPress: () => openCameraWithCrop(),
+          style: 'default',
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ],
+    );
+  };
+
+  const updateToFirebase = async () => {
+    await uploadImageFireStore(photoURL);
+    storeBio();
+  };
+
+  const uploadImageFireStore = async imagePath => {
+    const imageName = authentication.currentUser.email + '_profilePicture.jpg';
+    const storageRef = ref(storage, imageName);
+    const img = await fetch(imagePath);
+    const bytes = await img.blob();
+    await uploadBytes(storageRef, bytes);
+
+    await getDownloadURL(storageRef)
+      .then(async photoURL => {
+        await updateProfile(authentication.currentUser, {
+          photoURL: photoURL,
+        })
+          .then(async () => {
+            try {
+              const refImage = doc(
+                db,
+                'Users',
+                authentication.currentUser.email,
+              );
+              await updateDoc(refImage, {
+                'Account.image': photoURL,
+              });
+            } catch (err) {
+              console.log(err);
+            }
+          })
+          .catch(error => {
+            Alert.alert(error);
+          });
+      })
+      .catch((error, re) => {
+        alert(error.message);
+        console.log(re);
+      });
+  };
   return (
     <ScrollView style={{backgroundColor: 'white'}}>
       <View style={styles.app}>
         <View style={styles.container}>
+          <Text style={styles.stepText}>Step 1/3</Text>
           <Text style={styles.titleText}>Complete your profile</Text>
           <Text style={styles.textDescription}>
             Add a profile photo and a bio to let people know who you are
           </Text>
-          <View style={styles.imageContainer}>
-            <Image
-              source={require('../assets/profilePlaceHolder.jpg')}
-              style={styles.image}
-              resizeMode="cover"
-            />
-            <View style={styles.add}>
+          <TouchableOpacity onPress={() => changeImageOrGallery()}>
+            <View style={styles.imageContainer}>
               <Image
-                source={require('../assets/add.png')}
+                source={{uri: photoURL}}
+                style={styles.image}
                 resizeMode="cover"
-                style={styles.img}
               />
+              <View style={styles.add}>
+                <Image
+                  source={require('../assets/add.png')}
+                  resizeMode="cover"
+                  style={styles.img}
+                />
+              </View>
             </View>
-          </View>
-
+          </TouchableOpacity>
           <Text style={styles.userName}>{username}</Text>
         </View>
         <Text style={styles.preTitle}>Bio</Text>
@@ -73,12 +187,12 @@ const ProfileRegistrationScreen = ({navigation}) => {
           placeholder="Type something..."
           placeholderTextColor="grey"
           autoCorrect={false}
-          ss></TextInput>
+          onChangeText={newValue => setBio(newValue)}></TextInput>
 
         <GeneralButton
           title={'Continue'}
           buttonStyle={styles.buttonStyle}
-          onPress={() => navigation.navigate('GenderPicker')}
+          onPress={() => updateToFirebase()}
         />
       </View>
     </ScrollView>
@@ -97,7 +211,6 @@ const styles = StyleSheet.create({
     fontSize: 25,
     color: '#000000',
     fontWeight: 'bold',
-    marginTop: 40,
   },
 
   textDescription: {
@@ -165,6 +278,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
     fontWeight: '500',
+  },
+  stepText: {
+    marginTop: 40,
+    color: '#36B199',
+    marginBottom: 10,
   },
 });
 

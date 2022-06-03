@@ -130,6 +130,8 @@ android {
     ndkVersion rootProject.ext.ndkVersion
 
     compileSdkVersion rootProject.ext.compileSdkVersion
+   
+    
 
     defaultConfig {
         applicationId "com.foodapplication"
@@ -137,6 +139,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        vectorDrawables.useSupportLibrary = true
+        targetSdkVersion 27
     }
     splits {
         abi {

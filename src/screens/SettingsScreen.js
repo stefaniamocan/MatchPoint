@@ -26,15 +26,6 @@ const SettingsScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    marginTop: Platform.OS === 'ios' ? 50 : null,
-    marginLeft: Platform.OS === 'ios' ? 10 : null,
-  },
-  text: {
-    marginTop: 30,
-    color: '#000000',
-  },
-});
+const styles = StyleSheet.create({});
 
 export default SettingsScreen;

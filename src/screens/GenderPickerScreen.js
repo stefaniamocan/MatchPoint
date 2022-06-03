@@ -11,19 +11,39 @@ import {
   Alert,
   Image,
 } from 'react-native';
-import Input from '../components/Input';
+import {
+  collection,
+  getDoc,
+  setDoc,
+  doc,
+  addDoc,
+  updateDoc,
+} from 'firebase/firestore';
+import {authentication} from '../api/firebase';
+import {db} from '../api/firebase';
 import GeneralButton from '../components/GeneralButton';
 import TextButton from '../components/TextButton';
-import Feather from 'react-native-vector-icons/Feather';
 import {withNavigation} from 'react-navigation';
 import GenderComponent from '../components/GenderComponent';
 
 const GenderPickerScreen = ({navigation}) => {
-  const [gender, setGender] = useState('');
+  const [gender, setGender] = useState();
+
+  const storeGenderInfo = () => {
+    if (gender == null) {
+      Alert.alert(Error, 'Please choose your gender.');
+    } else {
+      const userDocRef = doc(db, 'users', authentication.currentUser.email);
+      setDoc(userDocRef, {gender: gender}, {merge: true}).then(() => {
+        navigation.navigate('ChooseLevelScreen');
+      });
+    }
+  };
   return (
     <ScrollView style={{backgroundColor: 'white'}}>
       <View style={styles.app}>
         <View style={styles.container}>
+          <Text style={styles.stepText}>Step 2/3</Text>
           <Text style={styles.titleText}>What is your gender?</Text>
           <Text style={styles.textDescription}>
             To give you a better experince we need to know your gender
@@ -34,7 +54,7 @@ const GenderPickerScreen = ({navigation}) => {
         <GeneralButton
           title={'Continue'}
           buttonStyle={styles.buttonStyle}
-          onPress={() => navigation.navigate('ChooseLevelScreen')}
+          onPress={() => storeGenderInfo()}
         />
       </View>
     </ScrollView>
@@ -53,7 +73,6 @@ const styles = StyleSheet.create({
     fontSize: 25,
     color: '#000000',
     fontWeight: 'bold',
-    marginTop: 40,
   },
 
   textDescription: {
@@ -67,6 +86,11 @@ const styles = StyleSheet.create({
 
   buttonStyle: {
     marginTop: 50,
+  },
+  stepText: {
+    marginTop: 40,
+    color: '#36B199',
+    marginBottom: 10,
   },
 });
 

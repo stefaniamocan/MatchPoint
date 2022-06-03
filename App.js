@@ -9,6 +9,7 @@ import ChooseLevelScreen from './src/screens/ChooseLevelScreen';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import ProfileRegistrationScreen from './src/screens/ProfileRegistrationScreen';
 import GenderPickerScreen from './src/screens/GenderPickerScreen';
+import LevelGuidelinesScreen from './src/screens/LevelGuidelinesScreen';
 
 const Stack = createStackNavigator();
 
@@ -47,6 +48,11 @@ const App = () => {
         <Stack.Screen
           name="ChooseLevelScreen"
           component={ChooseLevelScreen}
+          options={{header: () => null}}
+        />
+        <Stack.Screen
+          name="LevelGuidelines"
+          component={LevelGuidelinesScreen}
           options={{header: () => null}}
         />
         <Stack.Screen

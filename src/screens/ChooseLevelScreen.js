@@ -12,22 +12,36 @@ import {
 } from 'react-native';
 import Input from '../components/Input';
 import TextButton from '../components/TextButton';
-import Feather from 'react-native-vector-icons/Feather';
 import {withNavigation} from 'react-navigation';
-import {AuthContext} from '../navigation/AuthProvider';
 import Header from '../components/Header';
 import GeneralButton from '../components/GeneralButton';
 import Navigation from '../navigation/Navigation';
 import HomeScreen from './HomeScreen';
 import {SliderPicker} from 'react-native-slider-picker';
+import {
+  collection,
+  getDoc,
+  setDoc,
+  doc,
+  addDoc,
+  updateDoc,
+} from 'firebase/firestore';
+import {authentication} from '../api/firebase';
+import {db} from '../api/firebase';
 
 const ChooseLevelScreen = ({navigation}) => {
-  const [level, setLevel] = useState('');
-
+  const [level, setLevel] = useState(5);
+  const storeLevel = () => {
+    const userDocRef = doc(db, 'users', authentication.currentUser.email);
+    setDoc(userDocRef, {level: level}, {merge: true}).then(() => {
+      navigation.navigate('navigationscr');
+    });
+  };
   return (
     <ScrollView style={{backgroundColor: 'white'}}>
       <View style={styles.app}>
         <View style={styles.container}>
+          <Text style={styles.stepText}>Step 3/3</Text>
           <Text style={styles.titleText}>Choose Your Skill Level</Text>
           <Text style={styles.textDescription}>
             The scale used is based on the International Tennis Number System
@@ -37,7 +51,10 @@ const ChooseLevelScreen = ({navigation}) => {
         </View>
 
         <TouchableOpacity
-          style={{marginHorizontal: 14, marginTop: 20, marginBottom: 60}}>
+          style={{marginHorizontal: 14, marginTop: 20, marginBottom: 60}}
+          onPress={() => {
+            navigation.navigate('LevelGuidelines');
+          }}>
           <View style={styles.guidelineCard}>
             <View style={{alignSelf: 'center'}}>
               <Image
@@ -76,7 +93,7 @@ const ChooseLevelScreen = ({navigation}) => {
           callback={position => {
             setLevel(position);
           }}
-          labelFontColor={'#D9D9D9'}
+          labelFontColor={'#7D7D7D'}
           labelFontSize={13}
           labelFontWeight={'600'}
           showFill={true}
@@ -105,7 +122,7 @@ const ChooseLevelScreen = ({navigation}) => {
         <GeneralButton
           title={'Finish'}
           buttonStyle={styles.buttonStyle}
-          onPress={() => navigation.navigate('navigationscr')}
+          onPress={() => storeLevel()}
         />
       </View>
     </ScrollView>
@@ -125,7 +142,6 @@ const styles = StyleSheet.create({
     fontSize: 25,
     color: '#000000',
     fontWeight: 'bold',
-    marginTop: 40,
   },
 
   textDescription: {
@@ -160,6 +176,11 @@ const styles = StyleSheet.create({
   arrow: {
     width: 20,
     height: 30,
+  },
+  stepText: {
+    marginTop: 40,
+    color: '#36B199',
+    marginBottom: 10,
   },
 });
 
