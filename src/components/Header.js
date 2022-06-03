@@ -1,7 +1,10 @@
 import React, {useState} from 'react';
 import {StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
-
-const Header = ({pictureSource, loactionvisible, cityLocation, pageTitle}) => {
+import {authentication} from '../api/firebase';
+const Header = ({loactionvisible, cityLocation, pageTitle}) => {
+  const [profilePicture, setProfilePicture] = useState(
+    authentication.currentUser.photoURL,
+  );
   return (
     <View style={styles.header}>
       <Image
@@ -28,10 +31,7 @@ const Header = ({pictureSource, loactionvisible, cityLocation, pageTitle}) => {
           </>
         )}
       </View>
-      <Image
-        source={require('../assets/profilePicture.jpg')}
-        style={styles.profilePicture}
-      />
+      <Image source={{uri: profilePicture}} style={styles.profilePicture} />
     </View>
   );
 };

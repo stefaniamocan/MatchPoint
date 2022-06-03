@@ -60,7 +60,7 @@ const HomeScreen = ({navigation}) => {
   const [upcomingName, setupcomingName] = useState(null);
   const [upcomingLevel, setupcomingLevel] = useState(null);
   const [upcomingDate, setupcomingDate] = useState(null);
-  const {user, logout, userName, setUserName} = useContext(AuthContext);
+  const [userName, setUserName] = useState();
 
   //get games
   const upcominMatch = async () => {

@@ -45,20 +45,23 @@ const Input = ({title, passwordfield, iconshow, setField, ...rest}) => {
 const styles = StyleSheet.create({
   backgroundStyle: {
     marginTop: 2,
-    backgroundColor: '#F0EEEE',
+    backgroundColor: 'white',
     height: 50,
     borderRadius: 5,
     marginHorizontal: 15,
     flexDirection: 'row',
     marginBottom: 10,
+    borderColor: '#B9E4DB',
+    borderWidth: 1.5,
   },
   text: {
-    marginHorizontal: 20,
+    marginHorizontal: 9,
     padding: 10,
     borderRadius: 3,
-    color: '#A09C9C',
+    color: '#000000',
     fontSize: 13,
-    marginTop: 15,
+    fontWeight: '500',
+    marginTop: 12,
   },
   inputStyle: {
     flex: 1,
@@ -78,11 +81,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   showeye: {
-    fontSize: 25,
+    fontSize: 17,
     alignSelf: 'center',
     marginHorizontal: 15,
-    marginVertical: 10,
-    color: '#A09C9C',
+    marginVertical: 15,
+    color: '#000000',
   },
 });
 
