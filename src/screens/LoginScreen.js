@@ -46,18 +46,18 @@ const LoginScreen = ({navigation}) => {
   };
 
   return (
-    <ScrollView style={styles.iosLoginPart}>
+    <ScrollView style={styles.app}>
       <Text style={styles.loginText}>Login</Text>
       <Text style={styles.subText}>Sign to your account</Text>
       <Input
-        title="YOUR EMAIL"
+        title="Your Email"
         passwordfield={false}
         iconshow={false}
         onChangeText={newValue => setEmail(newValue)}
       />
 
       <Input
-        title="PASSWORD"
+        title="Password"
         passwordfield={true}
         iconshow={true}
         onChangeText={newValue => setPassword(newValue)}
@@ -73,11 +73,16 @@ const LoginScreen = ({navigation}) => {
         />
       </View>
 
-      <GeneralButton title={'Login'} onPress={() => handleLogin()} />
+      <GeneralButton
+        title={'Login'}
+        onPress={() => handleLogin()}
+        buttonStyle={styles.buttonStyle}
+      />
       <TextButton
         containerStyle={styles.registerContainer}
         textStyle={styles.registerText}
-        title={"I don't have an account"}
+        title={"Don't have an account?"}
+        boldText={' Register'}
         onPress={() => navigation.navigate('Register')}
       />
     </ScrollView>
@@ -85,12 +90,15 @@ const LoginScreen = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
+  app: {
+    backgroundColor: 'white',
+    marginHorizontal: 5,
+  },
   //Login Header
-
   loginText: {
     marginHorizontal: 20,
     fontSize: 22,
-    color: '#424242',
+    color: '#000000',
     fontWeight: 'bold',
     marginTop: 20,
     marginBottom: 7,
@@ -104,12 +112,11 @@ const styles = StyleSheet.create({
 
   //textButton styles
   forgotPasswordContainer: {
-    marginTop: -18,
     marginRight: 20,
   },
 
   forgotPasswordText: {
-    color: '#A09C9C',
+    color: '#36B199',
     marginTop: 0,
     fontSize: 15,
     fontWeight: '500',
@@ -120,15 +127,16 @@ const styles = StyleSheet.create({
   },
 
   registerText: {
-    fontSize: 17,
-    fontWeight: '400',
+    fontSize: 15,
   },
 
   viewStyle: {
+    marginTop: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  buttonStyle: {marginTop: 20},
 });
 
 export default LoginScreen;

@@ -19,7 +19,7 @@ import ChooseLevelScreen from './ChooseLevelScreen';
 
 import {authentication} from '../api/firebase';
 import {db} from '../api/firebase';
-import {createUserWithEmailAndPassword} from 'firebase/auth';
+import {createUserWithEmailAndPassword, updateProfile} from 'firebase/auth';
 
 import {
   collection,
@@ -44,7 +44,17 @@ const RegisterScreen = ({navigation, iconshow}) => {
       createUserWithEmailAndPassword(authentication, email.trim(), password)
         .then(() => {
           newFirestoreUser();
-          navigation.navigate('ChooseLevelScreen');
+          updateProfile(authentication.currentUser, {
+            displayName: username,
+          })
+            .then(async () => {
+              console.log(JSON.stringify(authentication.currentUser));
+              navigation.navigate('ProfileRegistration');
+            })
+            .catch((error, re) => {
+              alert(error.message);
+              console.log(re);
+            });
         })
         .catch((error, re) => {
           alert(error.message);
@@ -65,62 +75,70 @@ const RegisterScreen = ({navigation, iconshow}) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.app}>
       <Text style={styles.loginText}>Register</Text>
       <Text style={styles.subText}>Create your account</Text>
       <Input
-        title="YOUR NAME"
+        title="Your Name"
         passwordfield={false}
         iconshow={false}
         onChangeText={newValue => setUsername(newValue)}
       />
       <Input
-        title="EMAIL"
+        title="Your Email"
         passwordfield={false}
         iconshow={false}
         onChangeText={newValue => setEmail(newValue)}
       />
       <Input
-        title="PASSWORD"
+        title="Password"
         passwordfield={true}
         iconshow={true}
         onChangeText={newValue => setPassword(newValue)}
       />
 
       <Input
-        title="CONFIRM PASSWORD"
+        title="Confirm Password"
         iconshow={false}
         onChangeText={newValue => setcPassword(newValue)}
       />
       <GeneralButton
         title={'Register'}
         onPress={() => handleSignUp()}
+        buttonStyle={styles.buttonStyle}
         //onPress={() => navigation.navigate('ChooseLevelScreen')}
       />
       <TextButton
         containerStyle={styles.registerContainer}
         textStyle={styles.registerText}
-        title={'I have an account'}
+        title={'I have an account?'}
+        boldText={' Login'}
         onPress={() => navigation.navigate('Login')}
       />
     </ScrollView>
   );
 };
 const styles = StyleSheet.create({
-  //Login Header
+  app: {
+    backgroundColor: 'white',
+    marginHorizontal: 5,
+  },
+  //Header
   loginText: {
     marginHorizontal: 20,
     fontSize: 22,
     color: '#424242',
     fontWeight: 'bold',
-    marginTop: 20,
+    marginTop: 30,
     marginBottom: 7,
   },
   subText: {
     marginHorizontal: 20,
-    fontSize: 15,
+    fontSize: 16,
     color: '#979797',
     marginBottom: 30,
+    fontWeight: '400',
+    letterSpacing: 0.3,
   },
 
   //textButton styles
@@ -131,8 +149,10 @@ const styles = StyleSheet.create({
   },
 
   registerText: {
-    fontSize: 17,
-    fontWeight: '400',
+    fontSize: 15,
+  },
+  buttonStyle: {
+    marginTop: 30,
   },
 });
 

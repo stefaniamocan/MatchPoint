@@ -106,6 +106,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     borderRadius: 7,
     flexDirection: 'row',
+
     padding: 15,
     backgroundColor: '#53C7B0',
     alignItems: 'center',

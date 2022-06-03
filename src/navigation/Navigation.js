@@ -53,31 +53,6 @@ const Navigation = () => {
         tabBarShowLabel: false,
       }}>
       <Tab.Screen
-        name="SettingsScreen"
-        component={SettingsScreen}
-        options={{
-          headerStyle: {
-            backgroundColor: 'transparent',
-            elevation: 0,
-          },
-          headerTitle: () => <Header loactionvisible={true} />,
-
-          tabBarIcon: ({focused}) => (
-            <View>
-              <Image
-                source={require('../assets/settings.png')}
-                resizeMode="contain"
-                style={{
-                  width: 30,
-                  height: 30,
-                  tintColor: focused ? '#2E3A58' : '#E1E1E4',
-                }}
-              />
-            </View>
-          ),
-        }}
-      />
-      <Tab.Screen
         name="Home"
         component={HomeScreen}
         options={{
@@ -169,6 +144,32 @@ const Navigation = () => {
             <View>
               <Image
                 source={require('../assets/overview.png')}
+                resizeMode="contain"
+                style={{
+                  width: 30,
+                  height: 30,
+                  tintColor: focused ? '#2E3A58' : '#E1E1E4',
+                }}
+              />
+            </View>
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="SettingsScreen"
+        component={SettingsScreen}
+        options={{
+          headerStyle: {
+            backgroundColor: 'transparent',
+            elevation: 0,
+          },
+          headerTitle: () => <Header loactionvisible={true} />,
+
+          tabBarIcon: ({focused}) => (
+            <View>
+              <Image
+                source={require('../assets/settings.png')}
                 resizeMode="contain"
                 style={{
                   width: 30,

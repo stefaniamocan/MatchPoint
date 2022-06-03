@@ -1,13 +1,14 @@
 import {createAppContainer} from 'react-navigation';
 import {createStackNavigator} from '@react-navigation/stack';
-import Routes from './src/navigation/Routes';
 import React, {useState, useEffect} from 'react';
-import AuthStack from './src/navigation/AuthStack';
 import {NavigationContainer} from '@react-navigation/native';
 import Navigation from './src/navigation/Navigation';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import ChooseLevelScreen from './src/screens/ChooseLevelScreen';
+import OnboardingScreen from './src/screens/OnboardingScreen';
+import ProfileRegistrationScreen from './src/screens/ProfileRegistrationScreen';
+import GenderPickerScreen from './src/screens/GenderPickerScreen';
 
 const Stack = createStackNavigator();
 
@@ -25,6 +26,24 @@ const App = () => {
           component={RegisterScreen}
           options={{header: () => null}}
         />
+
+        <Stack.Screen
+          name="Onboarding"
+          component={OnboardingScreen}
+          options={{header: () => null}}
+        />
+
+        <Stack.Screen
+          name="ProfileRegistration"
+          component={ProfileRegistrationScreen}
+          options={{header: () => null}}
+        />
+
+        <Stack.Screen
+          name="GenderPicker"
+          component={GenderPickerScreen}
+          options={{header: () => null}}
+        />
         <Stack.Screen
           name="ChooseLevelScreen"
           component={ChooseLevelScreen}
@@ -32,7 +51,8 @@ const App = () => {
         />
         <Stack.Screen
           name="navigationscr"
-          component={Navigation}></Stack.Screen>
+          component={Navigation}
+          options={{header: () => null}}></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );
