@@ -33,7 +33,7 @@ const LoginScreen = ({navigation}) => {
     signInWithEmailAndPassword(authentication, email.trim(), password)
       .then(re => {
         console.log(re);
-        navigation.navigate('navigationscr');
+        navigation.navigate('drawernavigationscr');
       })
       .catch(error => alert(error.message));
   };

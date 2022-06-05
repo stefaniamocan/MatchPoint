@@ -34,7 +34,7 @@ const ChooseLevelScreen = ({navigation}) => {
   const storeLevel = () => {
     const userDocRef = doc(db, 'users', authentication.currentUser.uid);
     setDoc(userDocRef, {level: level}, {merge: true}).then(() => {
-      navigation.navigate('navigationscr');
+      navigation.navigate('drawernavigationscr');
     });
   };
   return (

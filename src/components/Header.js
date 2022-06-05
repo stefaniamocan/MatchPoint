@@ -2,20 +2,30 @@ import React, {useState} from 'react';
 import {StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
 import {authentication} from '../api/firebase';
 import {Dimensions} from 'react-native';
+import {withNavigation} from 'react-navigation';
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerItem,
+} from '@react-navigation/drawer';
 var width = Dimensions.get('window').width; //full width
 var height = Dimensions.get('window').height; //full height
-const Header = ({loactionvisible, cityLocation, pageTitle}) => {
+
+const Header = ({loactionvisible, cityLocation, pageTitle, ...rest}) => {
   const [profilePicture, setProfilePicture] = useState(
     authentication.currentUser.photoURL,
   );
   return (
     <View style={{backgroundColor: 'white', width: width, right: 15}}>
       <View style={styles.header}>
-        <Image
-          source={require('../assets/logo.png')}
-          resizeMode="contain"
-          style={styles.logo}
-        />
+        <TouchableOpacity {...rest}>
+          <Image
+            source={require('../assets/drawerNav.png')}
+            resizeMode="contain"
+            style={styles.drawer}
+          />
+        </TouchableOpacity>
         <View>
           {loactionvisible ? (
             <>
@@ -35,7 +45,11 @@ const Header = ({loactionvisible, cityLocation, pageTitle}) => {
             </>
           )}
         </View>
-        <Image source={{uri: profilePicture}} style={styles.profilePicture} />
+        <Image
+          source={require('../assets/logo.png')}
+          resizeMode="contain"
+          style={styles.logo}
+        />
       </View>
     </View>
   );
@@ -48,6 +62,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingTop: 10,
+    paddingBottom: 10,
     marginHorizontal: 10,
   },
   locationPin: {
@@ -79,8 +94,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   pageTitle: {
-    color: '#B7B7B7',
+    color: '#2E3A59',
+    fontWeight: '500',
     fontSize: 16,
+  },
+  drawer: {
+    width: 23,
+    height: 23,
   },
 });
 

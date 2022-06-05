@@ -41,13 +41,15 @@ import {Dimensions} from 'react-native';
 import SettingsInput from '../components/SettingsInput';
 import GenderComponent from '../components/GenderComponent';
 import {SliderPicker} from 'react-native-slider-picker';
+import {MaterialIndicator} from 'react-native-indicators';
 
 const SettingsScreen = ({navigation}) => {
   //useStates
+  const [loading, setLoading] = useState(false);
   const [photoURL, setProfileImage] = useState(
     authentication.currentUser.photoURL,
   );
-  const [level, setLevel] = useState(5);
+  const [level, setLevel] = useState();
 
   const [username, setUsername] = useState(
     authentication.currentUser.displayName,
@@ -155,11 +157,12 @@ const SettingsScreen = ({navigation}) => {
 
   //fetch data
   const fetchData = async () => {
+    setLoading(true);
     const docRef = doc(db, 'users', authentication.currentUser.uid);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       setBio(docSnap.data().bio);
-      setLevel(docSnap.data().level);
+      setLevel(parseInt(docSnap.data().level));
       setGender(docSnap.data().gender);
       if (gender == 'female') {
         setfemaleBoolean(true);
@@ -169,6 +172,7 @@ const SettingsScreen = ({navigation}) => {
         setmaleBoolean(true);
       }
     }
+    setLoading(false);
   };
 
   //update data before page is rendered
@@ -237,114 +241,122 @@ const SettingsScreen = ({navigation}) => {
 
   return (
     <ScrollView style={styles.app}>
-      <View style={styles.container}>
-        <Text style={styles.settingsTitle}>Account</Text>
-        <View style={{...styles.photoContainer, marginBottom: 35}}>
-          <Text style={styles.photoText}>Photo</Text>
-          <View style={styles.imageContainer}>
-            <Image
-              source={{uri: photoURL}}
-              style={styles.image}
-              resizeMode="cover"
-            />
-            <TextButton
-              boldText={'Upload Image'}
-              containerStyle={{paddingTop: 20}}
-              onPress={() => changeImageOrGallery()}
+      {!loading ? (
+        <View style={styles.container}>
+          <Text style={styles.settingsTitle}>Account</Text>
+          <View style={{...styles.photoContainer, marginBottom: 35}}>
+            <Text style={styles.photoText}>Photo</Text>
+            <View style={styles.imageContainer}>
+              <Image
+                source={{uri: photoURL}}
+                style={styles.image}
+                resizeMode="cover"
+              />
+              <TextButton
+                boldText={'Upload Image'}
+                containerStyle={{paddingTop: 20}}
+                onPress={() => changeImageOrGallery()}
+              />
+            </View>
+          </View>
+          <SettingsInput
+            title="Name"
+            initialValue={username}
+            onChangeText={newValue => setUsername(newValue)}
+          />
+
+          <SettingsInput
+            title="Bio     "
+            initialValue={bio}
+            onChangeText={newValue => setBio(newValue)}
+          />
+
+          <View style={{marginTop: 10, ...styles.photoContainer}}>
+            <Text style={styles.genderText}>Gender</Text>
+            <GenderComponent
+              sendValue={value => setGender(value)}
+              container={styles.genderContainer}
+              subText={false}
+              img={styles.genderimg}
+              female={femaleBoolean}
+              male={maleBoolean}
             />
           </View>
-        </View>
-        <SettingsInput
-          title="Name"
-          initialValue={username}
-          onChangeText={newValue => setUsername(newValue)}
-        />
 
-        <SettingsInput
-          title="Bio     "
-          initialValue={bio}
-          onChangeText={newValue => setBio(newValue)}
-        />
-
-        <View style={{marginTop: 10, ...styles.photoContainer}}>
-          <Text style={styles.genderText}>Gender</Text>
-          <GenderComponent
-            sendValue={value => setGender(value)}
-            container={styles.genderContainer}
-            subText={false}
-            img={styles.genderimg}
-            female={femaleBoolean}
-            male={maleBoolean}
-          />
-        </View>
-
-        <View style={{...styles.photoContainer}}>
-          <Text style={{marginRight: 20, ...styles.levelText}}>Level</Text>
-          <SliderPicker
-            maxValue={10}
-            callback={position => {
-              setLevel(position);
-            }}
-            labelFontColor={'#7D7D7D'}
-            labelFontSize={13}
-            labelFontWeight={'600'}
-            showFill={true}
-            fillColor={'#36B199'}
-            labelFontWeight={'bold'}
-            showNumberScale={true}
-            scaleNumberFontSize={10}
-            scaleNumberFontColor={'#DDDDDD'}
-            scaleNumberFontWeight={'bold'}
-            buttonBackgroundColor={'#fff'}
-            buttonBorderColor={'#DDDDDD'}
-            buttonDimensionsPercentage={6}
-            heightPercentage={2}
-            widthPercentage={70}
-            sliderInnerBorderStyles={{
-              borderWidth: 0,
-              borderRadius: 50,
-              borderColor: '#EDEDED',
-            }}
-            sliderInnerStylesOverride={{height: 13}}
-            sliderInnerBackgroundColor={'#EDEDED'}
-            buttonStylesOverride={{marginTop: -5}}
-            numberStylesOverride={{color: '#D9D9D9'}}
-          />
-        </View>
-        <GeneralButton
-          buttonStyle={styles.buttonStyle}
-          title={'Save'}
-          onPress={() => updateToFirebase()}></GeneralButton>
-
-        <Text style={{marginTop: 20, ...styles.settingsTitle}}>Settings</Text>
-        <TouchableOpacity
-          style={{marginTop: 30, marginLeft: 20}}
-          onPress={() => logout()}>
-          <View style={{flexDirection: 'row'}}>
-            <Image
-              source={require('../assets/logout.png')}
-              resizeMode="cover"
-              style={styles.logoutimg}
-            />
-
-            <Text
-              style={{
-                color: '#000',
-                fontSize: 16,
-                marginLeft: 15,
-                fontWeight: '500',
-              }}>
-              Logout
-            </Text>
-
-            <Image
-              source={require('../assets/arrowRightBlue.png')}
-              resizeMode="cover"
-              style={styles.arrowimg}
+          <View style={{...styles.photoContainer}}>
+            <Text style={{marginRight: 20, ...styles.levelText}}>Level</Text>
+            <SliderPicker
+              maxValue={10}
+              defaultValue={level}
+              callback={position => {
+                setLevel(position);
+              }}
+              labelFontColor={'#7D7D7D'}
+              labelFontSize={13}
+              labelFontWeight={'600'}
+              showFill={true}
+              fillColor={'#36B199'}
+              labelFontWeight={'bold'}
+              showNumberScale={true}
+              scaleNumberFontSize={10}
+              scaleNumberFontColor={'#DDDDDD'}
+              scaleNumberFontWeight={'bold'}
+              buttonBackgroundColor={'#fff'}
+              buttonBorderColor={'#DDDDDD'}
+              buttonDimensionsPercentage={6}
+              heightPercentage={2}
+              widthPercentage={70}
+              sliderInnerBorderStyles={{
+                borderWidth: 0,
+                borderRadius: 50,
+                borderColor: '#EDEDED',
+              }}
+              sliderInnerStylesOverride={{height: 13}}
+              sliderInnerBackgroundColor={'#EDEDED'}
+              buttonStylesOverride={{marginTop: -5}}
+              numberStylesOverride={{color: '#D9D9D9'}}
             />
           </View>
-        </TouchableOpacity>
-      </View>
+          <GeneralButton
+            buttonStyle={styles.buttonStyle}
+            title={'Save'}
+            onPress={() => updateToFirebase()}></GeneralButton>
+
+          <Text style={{marginTop: 20, ...styles.settingsTitle}}>Settings</Text>
+          <TouchableOpacity
+            style={{marginTop: 30, marginLeft: 20}}
+            onPress={() => logout()}>
+            <View style={{flexDirection: 'row'}}>
+              <Image
+                source={require('../assets/logout.png')}
+                resizeMode="cover"
+                style={styles.logoutimg}
+              />
+
+              <Text
+                style={{
+                  color: '#000',
+                  fontSize: 16,
+                  marginLeft: 15,
+                  fontWeight: '500',
+                }}>
+                Logout
+              </Text>
+
+              <Image
+                source={require('../assets/arrowRightBlue.png')}
+                resizeMode="cover"
+                style={styles.arrowimg}
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <MaterialIndicator
+          size={40}
+          color="rgba(49,101,255,0.80)"
+          style={{marginTop: 230}}></MaterialIndicator>
+      )}
     </ScrollView>
   );
 };

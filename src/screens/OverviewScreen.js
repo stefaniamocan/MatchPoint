@@ -10,7 +10,7 @@ import {
   ScrollView,
   FlatList,
 } from 'react-native';
-import {AuthContext} from '../navigation/AuthProvider';
+
 import NewMatchCard from '../components/NewMatchCard';
 import {db} from '../api/firebase';
 import {
@@ -31,7 +31,7 @@ import {
 import DatePicker from 'react-native-date-picker';
 
 const OverviewScreen = ({navigation}) => {
-  const {user} = useContext(AuthContext);
+  const [user, setuser] = useState('r');
   const [games, setGames] = useState(null);
   const fetchGames = async () => {
     const list = [];
