@@ -48,7 +48,7 @@ const RegisterScreen = ({navigation, iconshow}) => {
             displayName: username,
           })
             .then(async () => {
-              console.log(JSON.stringify(authentication.currentUser));
+              //console.log(JSON.stringify(authentication.currentUser));
               navigation.navigate('ProfileRegistration');
             })
             .catch((error, re) => {
@@ -65,7 +65,7 @@ const RegisterScreen = ({navigation, iconshow}) => {
 
   const newFirestoreUser = async () => {
     try {
-      const ref = doc(db, 'users', authentication.currentUser.email);
+      const ref = doc(db, 'users', authentication.currentUser.uid);
       await setDoc(ref, {
         name: username,
       });

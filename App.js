@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import {createAppContainer} from 'react-navigation';
 import {createStackNavigator} from '@react-navigation/stack';
 import React, {useState, useEffect} from 'react';
@@ -10,6 +11,7 @@ import OnboardingScreen from './src/screens/OnboardingScreen';
 import ProfileRegistrationScreen from './src/screens/ProfileRegistrationScreen';
 import GenderPickerScreen from './src/screens/GenderPickerScreen';
 import LevelGuidelinesScreen from './src/screens/LevelGuidelinesScreen';
+import DrawerNavigator from './src/navigation/DrawerNavigator';
 
 const Stack = createStackNavigator();
 
@@ -58,6 +60,11 @@ const App = () => {
         <Stack.Screen
           name="navigationscr"
           component={Navigation}
+          options={{header: () => null}}></Stack.Screen>
+
+        <Stack.Screen
+          name="drawernavigationscr"
+          component={DrawerNavigator}
           options={{header: () => null}}></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>

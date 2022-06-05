@@ -15,7 +15,6 @@ import GeneralButton from '../components/GeneralButton';
 import TextButton from '../components/TextButton';
 import Feather from 'react-native-vector-icons/Feather';
 import {withNavigation} from 'react-navigation';
-import {AuthContext} from '../navigation/AuthProvider';
 import Header from '../components/Header';
 import UpcomingMatchCard from '../components/UpcomingMatchCard';
 import NewMatchCard from '../components/NewMatchCard';

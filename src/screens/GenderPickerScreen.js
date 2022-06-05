@@ -33,7 +33,7 @@ const GenderPickerScreen = ({navigation}) => {
     if (gender == null) {
       Alert.alert(Error, 'Please choose your gender.');
     } else {
-      const userDocRef = doc(db, 'users', authentication.currentUser.email);
+      const userDocRef = doc(db, 'users', authentication.currentUser.uid);
       setDoc(userDocRef, {gender: gender}, {merge: true}).then(() => {
         navigation.navigate('ChooseLevelScreen');
       });
@@ -48,7 +48,14 @@ const GenderPickerScreen = ({navigation}) => {
           <Text style={styles.textDescription}>
             To give you a better experince we need to know your gender
           </Text>
-          <GenderComponent sendValue={value => setGender(value)} />
+          <GenderComponent
+            sendValue={value => setGender(value)}
+            container={styles.genderContainer}
+            subText={true}
+            img={styles.genderimg}
+            female={false}
+            male={false}
+          />
         </View>
 
         <GeneralButton
@@ -91,6 +98,16 @@ const styles = StyleSheet.create({
     marginTop: 40,
     color: '#36B199',
     marginBottom: 10,
+  },
+  genderContainer: {
+    marginTop: 40,
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+  },
+  genderimg: {
+    width: 100,
+    height: 100,
   },
 });
 

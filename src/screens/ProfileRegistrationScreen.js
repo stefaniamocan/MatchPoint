@@ -43,7 +43,7 @@ const ProfileRegistrationScreen = ({navigation}) => {
   const [photoURL, setProfileImage] = useState(placheHolderImageURI);
 
   const storeBio = () => {
-    const userDocRef = doc(db, 'users', authentication.currentUser.email);
+    const userDocRef = doc(db, 'users', authentication.currentUser.uid);
     setDoc(userDocRef, {bio: bio}, {merge: true}).then(() => {
       navigation.navigate('GenderPicker');
     });
@@ -117,7 +117,7 @@ const ProfileRegistrationScreen = ({navigation}) => {
   };
 
   const uploadImageFireStore = async imagePath => {
-    const imageName = authentication.currentUser.email + '_profilePicture.jpg';
+    const imageName = authentication.currentUser.uid + '_profilePicture.jpg';
     const storageRef = ref(storage, imageName);
     const img = await fetch(imagePath);
     const bytes = await img.blob();
@@ -130,13 +130,9 @@ const ProfileRegistrationScreen = ({navigation}) => {
         })
           .then(async () => {
             try {
-              const refImage = doc(
-                db,
-                'Users',
-                authentication.currentUser.email,
-              );
+              const refImage = doc(db, 'users', authentication.currentUser.uid);
               await updateDoc(refImage, {
-                'Account.image': photoURL,
+                ProfileImage: photoURL,
               });
             } catch (err) {
               console.log(err);

@@ -15,7 +15,6 @@ import {
   update,
   updateDoc,
 } from 'firebase/firestore/lite';
-import {AuthContext} from '../navigation/AuthProvider';
 
 const NewMatchCard = ({
   visible,
@@ -28,9 +27,8 @@ const NewMatchCard = ({
   date,
   docid,
 }) => {
-  const {user} = useContext(AuthContext);
-
   const fetchGames = async () => {
+    const [user, setuser] = useState('r');
     const subColRef = collection(db, 'users', user, 'games');
     const qSnap = await getDocs(subColRef);
     console.log('data');

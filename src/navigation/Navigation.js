@@ -17,6 +17,7 @@ import MessagingScreen from '../screens/MessagingScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import Header from '../components/Header';
 import {authentication} from '../api/firebase';
+import DrawerNavigator from './DrawerNavigator';
 
 const fullScreenWidth = Dimensions.get('window').width;
 
@@ -37,7 +38,7 @@ const CustomTabBarButton = ({children, onPress}) => (
   </TouchableOpacity>
 );
 
-const Navigation = () => {
+const Navigation = ({navigation}) => {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -61,7 +62,9 @@ const Navigation = () => {
             backgroundColor: 'transparent',
             elevation: 0,
           },
-          headerTitle: () => <Header loactionvisible={true} />,
+          headerTitle: () => (
+            <Header loactionvisible={true} onPress={navigation.openDrawer} />
+          ),
 
           tabBarIcon: ({focused}) => (
             <View>
@@ -86,7 +89,9 @@ const Navigation = () => {
             backgroundColor: 'transparent',
             elevation: 0,
           },
-          headerTitle: () => <Header loactionvisible={true} />,
+          headerTitle: () => (
+            <Header loactionvisible={true} onPress={navigation.openDrawer} />
+          ),
 
           tabBarIcon: ({focused}) => (
             <View>
@@ -113,7 +118,11 @@ const Navigation = () => {
             elevation: 0,
           },
           headerTitle: () => (
-            <Header loactionvisible={false} pageTitle={'Generate new game'} />
+            <Header
+              loactionvisible={false}
+              pageTitle={'Generate new game'}
+              onPress={navigation.openDrawer}
+            />
           ),
 
           tabBarIcon: ({focused}) => (
@@ -139,7 +148,9 @@ const Navigation = () => {
             backgroundColor: 'transparent',
             elevation: 0,
           },
-          headerTitle: () => <Header loactionvisible={true} />,
+          headerTitle: () => (
+            <Header loactionvisible={true} onPress={navigation.openDrawer} />
+          ),
 
           tabBarIcon: ({focused}) => (
             <View>
@@ -165,7 +176,13 @@ const Navigation = () => {
             backgroundColor: 'transparent',
             elevation: 0,
           },
-          headerTitle: () => <Header loactionvisible={true} />,
+          headerTitle: () => (
+            <Header
+              loactionvisible={false}
+              pageTitle={'Settings'}
+              onPress={navigation.openDrawer}
+            />
+          ),
 
           tabBarIcon: ({focused}) => (
             <View>

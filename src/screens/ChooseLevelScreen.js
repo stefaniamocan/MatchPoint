@@ -32,9 +32,9 @@ import {db} from '../api/firebase';
 const ChooseLevelScreen = ({navigation}) => {
   const [level, setLevel] = useState(5);
   const storeLevel = () => {
-    const userDocRef = doc(db, 'users', authentication.currentUser.email);
+    const userDocRef = doc(db, 'users', authentication.currentUser.uid);
     setDoc(userDocRef, {level: level}, {merge: true}).then(() => {
-      navigation.navigate('navigationscr');
+      navigation.navigate('drawernavigationscr');
     });
   };
   return (
