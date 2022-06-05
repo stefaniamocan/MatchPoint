@@ -11,11 +11,18 @@ import {
   Image,
 } from 'react-native';
 
-const GenderComponent = ({sendValue}) => {
-  const [maleValue, setmaleValue] = useState(false);
-  const [femaleValue, setfemaleValue] = useState(false);
+const GenderComponent = ({
+  sendValue,
+  container,
+  subText,
+  img,
+  male,
+  female,
+}) => {
+  const [maleValue, setmaleValue] = useState(male);
+  const [femaleValue, setfemaleValue] = useState(female);
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity style={container}>
       <TouchableOpacity
         onPress={() => {
           setmaleValue(true);
@@ -26,38 +33,49 @@ const GenderComponent = ({sendValue}) => {
           <>
             <Image
               source={require('../assets/maleFocused.png')}
-              style={styles.img}
+              style={img}
               resizeMode="contain"
             />
-            <Text
-              style={{
-                color: '#000000',
-                alignSelf: 'center',
-                marginTop: 10,
-                marginBottom: 40,
-                fontSize: 16,
-              }}>
-              Male
-            </Text>
+            {subText ? (
+              <>
+                <Text
+                  style={{
+                    color: '#000000',
+                    alignSelf: 'center',
+                    marginTop: 10,
+                    marginBottom: 40,
+                    fontSize: 16,
+                  }}>
+                  Male
+                </Text>
+              </>
+            ) : (
+              <></>
+            )}
           </>
         ) : (
           <>
             <Image
               source={require('../assets/male.png')}
-              style={styles.img}
+              style={img}
               resizeMode="contain"
             />
-
-            <Text
-              style={{
-                color: '#000000',
-                alignSelf: 'center',
-                marginTop: 10,
-                marginBottom: 40,
-                fontSize: 16,
-              }}>
-              Male
-            </Text>
+            {subText ? (
+              <>
+                <Text
+                  style={{
+                    color: '#000000',
+                    alignSelf: 'center',
+                    marginTop: 10,
+                    marginBottom: 40,
+                    fontSize: 16,
+                  }}>
+                  Male
+                </Text>
+              </>
+            ) : (
+              <></>
+            )}
           </>
         )}
       </TouchableOpacity>
@@ -71,36 +89,50 @@ const GenderComponent = ({sendValue}) => {
           <>
             <Image
               source={require('../assets/femaleFocused.png')}
-              style={styles.img}
+              style={img}
               resizeMode="contain"
             />
 
-            <Text
-              style={{
-                color: '#000000',
-                alignSelf: 'center',
-                marginTop: 10,
-                fontSize: 16,
-              }}>
-              Female
-            </Text>
+            {subText ? (
+              <>
+                <Text
+                  style={{
+                    color: '#000000',
+                    alignSelf: 'center',
+                    marginTop: 10,
+                    marginBottom: 40,
+                    fontSize: 16,
+                  }}>
+                  Female
+                </Text>
+              </>
+            ) : (
+              <></>
+            )}
           </>
         ) : (
           <>
             <Image
-              style={styles.img}
+              style={img}
               resizeMode="contain"
               source={require('../assets/female.png')}
             />
-            <Text
-              style={{
-                color: '#000000',
-                alignSelf: 'center',
-                marginTop: 10,
-                fontSize: 16,
-              }}>
-              Female
-            </Text>
+            {subText ? (
+              <>
+                <Text
+                  style={{
+                    color: '#000000',
+                    alignSelf: 'center',
+                    marginTop: 10,
+                    marginBottom: 40,
+                    fontSize: 16,
+                  }}>
+                  Female
+                </Text>
+              </>
+            ) : (
+              <></>
+            )}
           </>
         )}
       </TouchableOpacity>
@@ -108,12 +140,6 @@ const GenderComponent = ({sendValue}) => {
   );
 };
 const styles = StyleSheet.create({
-  container: {
-    marginTop: 40,
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-evenly',
-  },
   text: {
     marginTop: 30,
     color: '#000000',

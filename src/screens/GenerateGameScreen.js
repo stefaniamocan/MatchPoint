@@ -11,7 +11,6 @@ import {
   Image,
 } from 'react-native';
 import {TouchableOpacity} from 'react-native';
-import Feather from 'react-native-vector-icons/Feather';
 import GeneralButton from '../components/GeneralButton';
 import DatePicker from 'react-native-date-picker';
 import {db} from '../api/firebase';
@@ -24,26 +23,23 @@ import {
   getDocs,
 } from 'firebase/firestore/lite';
 import LevelComponent from '../components/LevelComponent';
-import {firebase} from '@react-native-firebase/firestore';
-import {AuthContext} from '../navigation/AuthProvider';
 
 const GenerateGameScreen = () => {
+  const [user, setUser] = useState();
   const [date, setDate] = useState(new Date());
   const [level, setLevel] = useState('');
 
   const [openDate, setOpenDate] = useState(false);
   const [openTime, setOpenTime] = useState(false);
 
-  const {user, userName} = useContext(AuthContext);
-
-  const postGame = (user, date, level) => {
-    addDoc(collection(db, 'games'), {
-      userUid: user,
-      userName: userName,
-      date: date,
-      level: level,
-    });
-  };
+  // const postGame = (user, date, level) => {
+  //   addDoc(collection(db, 'games'), {
+  //     userUid: user,
+  //     userName: userName,
+  //     date: date,
+  //     level: level,
+  //   });
+  // };
 
   console.log(level);
   return (

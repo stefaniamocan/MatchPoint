@@ -1,50 +1,54 @@
 import React, {useState} from 'react';
 import {StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
 import {authentication} from '../api/firebase';
+import {Dimensions} from 'react-native';
+var width = Dimensions.get('window').width; //full width
+var height = Dimensions.get('window').height; //full height
 const Header = ({loactionvisible, cityLocation, pageTitle}) => {
   const [profilePicture, setProfilePicture] = useState(
     authentication.currentUser.photoURL,
   );
   return (
-    <View style={styles.header}>
-      <Image
-        source={require('../assets/logo.png')}
-        resizeMode="contain"
-        style={styles.logo}
-      />
-      <View>
-        {loactionvisible ? (
-          <>
-            <Text style={styles.currentlocation}>Current Location</Text>
-            <View style={styles.locationView}>
-              <Image
-                source={require('../assets/locationPin.png')}
-                resizeMode="contain"
-                style={styles.locationPin}
-              />
-              <Text style={styles.currentlocationCity}>Timisoara</Text>
-            </View>
-          </>
-        ) : (
-          <>
-            <Text style={styles.pageTitle}>{pageTitle}</Text>
-          </>
-        )}
+    <View style={{backgroundColor: 'white', width: width, right: 15}}>
+      <View style={styles.header}>
+        <Image
+          source={require('../assets/logo.png')}
+          resizeMode="contain"
+          style={styles.logo}
+        />
+        <View>
+          {loactionvisible ? (
+            <>
+              <Text style={styles.currentlocation}>Current Location</Text>
+              <View style={styles.locationView}>
+                <Image
+                  source={require('../assets/locationPin.png')}
+                  resizeMode="contain"
+                  style={styles.locationPin}
+                />
+                <Text style={styles.currentlocationCity}>Timisoara</Text>
+              </View>
+            </>
+          ) : (
+            <>
+              <Text style={styles.pageTitle}>{pageTitle}</Text>
+            </>
+          )}
+        </View>
+        <Image source={{uri: profilePicture}} style={styles.profilePicture} />
       </View>
-      <Image source={{uri: profilePicture}} style={styles.profilePicture} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   header: {
-    width: '100%',
-    height: '100%',
+    backgroundColor: 'white',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'transparent',
     paddingTop: 10,
+    marginHorizontal: 10,
   },
   locationPin: {
     width: 15,

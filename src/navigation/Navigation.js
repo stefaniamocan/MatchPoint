@@ -165,7 +165,9 @@ const Navigation = () => {
             backgroundColor: 'transparent',
             elevation: 0,
           },
-          headerTitle: () => <Header loactionvisible={true} />,
+          headerTitle: () => (
+            <Header loactionvisible={false} pageTitle={'Settings'} />
+          ),
 
           tabBarIcon: ({focused}) => (
             <View>
