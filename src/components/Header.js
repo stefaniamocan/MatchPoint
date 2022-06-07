@@ -12,12 +12,13 @@ import {
 var width = Dimensions.get('window').width; //full width
 var height = Dimensions.get('window').height; //full height
 
-const Header = ({loactionvisible, cityLocation, pageTitle, ...rest}) => {
+const Header = ({loactionvisible, cityLocation, pageTitle, left, ...rest}) => {
   const [profilePicture, setProfilePicture] = useState(
     authentication.currentUser.photoURL,
   );
   return (
-    <View style={{backgroundColor: 'white', width: width, right: 15}}>
+    <View
+      style={{backgroundColor: 'white', width: width, right: 15, left: left}}>
       <View style={styles.header}>
         <TouchableOpacity {...rest}>
           <Image

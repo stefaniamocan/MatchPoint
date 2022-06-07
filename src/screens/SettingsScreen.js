@@ -354,7 +354,7 @@ const SettingsScreen = ({navigation}) => {
       ) : (
         <MaterialIndicator
           size={40}
-          color="rgba(49,101,255,0.80)"
+          color="#36B199"
           style={{marginTop: 230}}></MaterialIndicator>
       )}
     </ScrollView>

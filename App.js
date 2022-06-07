@@ -12,6 +12,10 @@ import ProfileRegistrationScreen from './src/screens/ProfileRegistrationScreen';
 import GenderPickerScreen from './src/screens/GenderPickerScreen';
 import LevelGuidelinesScreen from './src/screens/LevelGuidelinesScreen';
 import DrawerNavigator from './src/navigation/DrawerNavigator';
+import ProfileScreen from './src/screens/ProfileScreen';
+import Header from './src/components/Header';
+import UserProfileScreen from './src/screens/UserProfileScreen';
+import {Image} from 'react-native';
 
 const Stack = createStackNavigator();
 
@@ -29,19 +33,16 @@ const App = () => {
           component={RegisterScreen}
           options={{header: () => null}}
         />
-
         <Stack.Screen
           name="Onboarding"
           component={OnboardingScreen}
           options={{header: () => null}}
         />
-
         <Stack.Screen
           name="ProfileRegistration"
           component={ProfileRegistrationScreen}
           options={{header: () => null}}
         />
-
         <Stack.Screen
           name="GenderPicker"
           component={GenderPickerScreen}
@@ -58,10 +59,30 @@ const App = () => {
           options={{header: () => null}}
         />
         <Stack.Screen
+          name="UserProfile"
+          component={UserProfileScreen}
+          options={{
+            title: 'Profile',
+            headerTitleAlign: 'center',
+            headerTitleStyle: {
+              color: '#2E3A59',
+              fontWeight: '500',
+              fontSize: 16,
+            },
+
+            headerRight: () => (
+              <Image
+                source={require('./src/assets/logo.png')}
+                resizeMode="contain"
+                style={{width: 40, height: 40, marginRight: 5}}
+              />
+            ),
+          }}
+        />
+        <Stack.Screen
           name="navigationscr"
           component={Navigation}
           options={{header: () => null}}></Stack.Screen>
-
         <Stack.Screen
           name="drawernavigationscr"
           component={DrawerNavigator}

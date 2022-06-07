@@ -49,7 +49,7 @@ const RegisterScreen = ({navigation, iconshow}) => {
           })
             .then(async () => {
               //console.log(JSON.stringify(authentication.currentUser));
-              navigation.navigate('ProfileRegistration');
+              navigation.navigate('Onboarding');
             })
             .catch((error, re) => {
               alert(error.message);
