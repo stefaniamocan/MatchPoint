@@ -8,12 +8,7 @@ import {
   TouchableOpacity,
   ImageBackground,
 } from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {createDrawerNavigator} from '@react-navigation/drawer';
-import OverviewScreen from '../screens/OverviewScreen';
-import Navigation from './Navigation';
-import HomeScreen from '../screens/HomeScreen';
-import LevelGuidelinesScreen from '../screens/LevelGuidelinesScreen';
+
 import {
   collection,
   getDoc,
@@ -35,8 +30,7 @@ import {
 } from 'firebase/auth';
 import {DrawerContentScrollView} from '@react-navigation/drawer';
 import {DrawerItem, DrawerItemList} from '@react-navigation/drawer';
-
-const Drawer = createDrawerNavigator();
+import Header from '../components/Header';
 
 const CustomDrawerContent = props => {
   const [photoURL, setProfileImage] = useState(
@@ -84,15 +78,34 @@ const CustomDrawerContent = props => {
             {username}
           </Text>
         </ImageBackground>
+
+        <DrawerItem
+          label="Home"
+          labelStyle={styles.label}
+          style={{marginTop: 10}}
+          onPress={() => props.navigation.navigate('HomeScr')}
+          icon={() => (
+            <Image
+              source={require('../assets/../assets/home.png')}
+              style={{
+                height: 25,
+                width: 25,
+                tintColor: '#C5C5C5',
+              }}
+              resizeMode="contain"
+            />
+          )}
+        />
+
         <DrawerItem
           label="Profile"
           labelStyle={styles.label}
           style={{marginTop: 10}}
-          onPress={() => props.navigation.navigate('LevelGuidelines')}
+          onPress={() => props.navigation.navigate('ProfileScreen')}
           icon={() => (
             <Image
-              source={require('../assets/profile.png')}
-              style={{height: 20, width: 20}}
+              source={require('../assets/Customer.png')}
+              style={{height: 30, width: 30}}
               resizeMode="contain"
             />
           )}
