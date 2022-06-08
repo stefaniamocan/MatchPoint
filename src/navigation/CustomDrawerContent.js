@@ -105,7 +105,7 @@ const CustomDrawerContent = props => {
           icon={() => (
             <Image
               source={require('../assets/Customer.png')}
-              style={{height: 30, width: 30}}
+              style={{height: 28, width: 25}}
               resizeMode="contain"
             />
           )}

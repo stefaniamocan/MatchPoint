@@ -135,14 +135,15 @@ const GenerateGameScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  skillLevel: {
-    marginTop: 40,
-  },
   mainContainer: {
     flex: 1,
-    marginTop: 20,
+
     borderRadius: 12,
     padding: 15,
+    backgroundColor: 'white',
+  },
+  skillLevel: {
+    marginTop: 40,
   },
 
   //date-time picker

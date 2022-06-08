@@ -53,6 +53,7 @@ import ReviewCard from '../components/ReviewCard';
 import moment from 'moment';
 import useReviews from '../hooks/useReviews';
 import NoReviews from '../components/NoReviews';
+import ProfileGameComponent from '../components/ProfileGameComponent';
 
 const ProfileScreen = ({navigation}) => {
   //useStates
@@ -69,6 +70,8 @@ const ProfileScreen = ({navigation}) => {
   const [rating, setRating] = useState(5);
   const [totalRating, settotalRating] = useState(5);
   const [totalGames, settotalGames] = useState(20);
+
+  const [games, setGames] = useState([]);
 
   //const [profile,setProfile] = useState();
   const fetchuserProfileData = async uid => {
@@ -139,6 +142,23 @@ const ProfileScreen = ({navigation}) => {
     console.log('Blabla');
 
     setLoading(false);
+
+    let list2 = [
+      {
+        id: '1',
+        currentUserName: 'Stefania',
+        currentUserPhoto: 'ghj',
+        oponentUserName: 'fghj',
+        oponentUserPhoto: 'FGHJ',
+        set1: 'df',
+        set2: 'sdf',
+        set3: 'df',
+        location: 'df',
+        date: 'sdf',
+      },
+    ];
+
+    setGames(list2);
   };
 
   //update data before page is rendered
@@ -241,7 +261,7 @@ const ProfileScreen = ({navigation}) => {
                 </Text>
                 {reviews.length > 0 ? (
                   <>
-                    {reviews.map(review => {
+                    {reviews.slice(0, 3).map(review => {
                       return (
                         <ReviewCard
                           key={review.id}
@@ -254,6 +274,18 @@ const ProfileScreen = ({navigation}) => {
                         />
                       );
                     })}
+
+                    <TextButton
+                      containerStyle={{alignSelf: 'flex-end'}}
+                      textStyle={styles.registerText}
+                      boldText={'View all'}
+                      onPress={() =>
+                        navigation.navigate('SeeAllScreen', {
+                          list: reviews,
+                          games: false,
+                        })
+                      }
+                    />
                   </>
                 ) : (
                   <>
@@ -263,31 +295,46 @@ const ProfileScreen = ({navigation}) => {
                 <Text style={{marginBottom: 20, ...styles.h3Style}}>
                   Past Games
                 </Text>
-                <NoReviews reviews={false} />
+                {games.length > 0 ? (
+                  <>
+                    {games.slice(0, 3).map(games => {
+                      return (
+                        <ProfileGameComponent
+                          key={games.id}
+                          currentUserName={games.currentUserName}
+                          currentUserPhoto={games.currentUserPhoto}
+                          oponentUserName={games.oponentUserName}
+                          oponentUserPhoto={games.oponentUserPhoto}
+                          set1={games.set1}
+                          set2={games.set2}
+                          set3={games.set3}
+                          location={games.location}
+                          date={games.date}
+                        />
+                      );
+                    })}
+                    <TextButton
+                      containerStyle={{alignSelf: 'flex-end'}}
+                      textStyle={styles.registerText}
+                      boldText={'View all'}
+                      onPress={() =>
+                        navigation.navigate('SeeAllScreen', {
+                          list: games,
+                          games: true,
+                        })
+                      }
+                    />
+                  </>
+                ) : (
+                  <>
+                    <NoReviews reviews={false} />
+                  </>
+                )}
               </View>
             </View>
           </View>
         </ScrollView>
       ) : (
-        // <View>
-        //   {reviews.length > 0 ? (
-        //     <View>
-        //       <FlatList
-        //         keyExtractor={item => item.id}
-        //         data={reviews}
-        //         renderItem={({item}) => (
-        //           <ReviewCard
-        //             userPhotoURL={item.review_userPhotoURL}
-        //             userName={item.review_userName}
-        //             userRating={item.review_userRating}
-        //             useruid={item.review_userUid}
-        //             postTime={item.review_time}
-        //             screenName="UserProfile"
-        //           />
-        //         )}></FlatList>
-        //     </View>
-        //   ) : null}
-        // </View>
         <MaterialIndicator
           size={40}
           color="#36B199"
@@ -303,7 +350,7 @@ const styles = StyleSheet.create({
   },
   container: {
     marginTop: 30,
-    marginHorizontal: 20,
+    marginHorizontal: 18,
     marginBottom: 100,
   },
 
@@ -328,7 +375,7 @@ const styles = StyleSheet.create({
     height: 45,
   },
   box: {
-    padding: 25,
+    padding: 21,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
