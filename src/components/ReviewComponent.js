@@ -18,7 +18,7 @@ const ReviewComponent = ({reviews}) => {
       ],
     );
   };
-  const [rating, setRating] = useState();
+  const [rating, setRating] = useState(0);
   return (
     <View
       style={{
@@ -42,7 +42,7 @@ const ReviewComponent = ({reviews}) => {
       </Text>
       <View style={{marginTop: 15, marginBottom: 10}}>
         <Stars
-          default={1}
+          default={rating}
           update={val => {
             [setRating(val), saveRating(val)];
           }}

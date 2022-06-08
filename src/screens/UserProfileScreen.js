@@ -211,7 +211,7 @@ const ProfileScreen2 = ({route, navigation}) => {
                 </Text>
                 {reviews.length > 0 ? (
                   <>
-                    {reviews.map(review => {
+                    {reviews.slice(0, 3).map(review => {
                       return (
                         <ReviewCard
                           key={review.id}
@@ -224,6 +224,14 @@ const ProfileScreen2 = ({route, navigation}) => {
                         />
                       );
                     })}
+                    <TextButton
+                      containerStyle={{alignSelf: 'flex-end'}}
+                      textStyle={styles.registerText}
+                      boldText={'View all'}
+                      onPress={() =>
+                        navigation.navigate('SeeAllScreen', reviews)
+                      }
+                    />
                   </>
                 ) : (
                   <>
