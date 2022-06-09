@@ -28,14 +28,15 @@ const NewMatchCard = ({
   docid,
 }) => {
   const fetchGames = async () => {
-    const [user, setuser] = useState('r');
-    const subColRef = collection(db, 'users', user, 'games');
-    const qSnap = await getDocs(subColRef);
-    console.log('data');
-    qSnap.forEach(doc => {
-      // doc.data() is never undefined for query doc snapshots
-      console.log(doc.id, ' => ', doc.data());
-    });
+    // const [user, setuser] = useState('r');
+    // const subColRef = collection(db, 'users', user, 'games');
+    // const qSnap = await getDocs(subColRef);
+    // console.log('data');
+    // qSnap.forEach(doc => {
+    //   // doc.data() is never undefined for query doc snapshots
+    // console.log(doc.id, ' => ', doc.data());
+    //});
+    console.log('ghjk');
   };
   return (
     <View style={styles.container}>
@@ -76,23 +77,23 @@ const NewMatchCard = ({
           <>
             <TouchableOpacity
               onPress={() => {
-                updateDoc(doc(db, 'games', docid), {
-                  player: user,
-                });
-                addDoc(collection(db, 'users', user, 'games'), {
-                  userUid: userUid,
-                  userName: userName,
-                  date: date,
-                  level: level,
-                  player: user,
-                });
-                addDoc(collection(db, 'users', userUid, 'games'), {
-                  userUid: userUid,
-                  userName: userName,
-                  date: date,
-                  level: level,
-                  player: user,
-                });
+                // updateDoc(doc(db, 'games', docid), {
+                //   player: user,
+                // });
+                // addDoc(collection(db, 'users', user, 'games'), {
+                //   userUid: userUid,
+                //   userName: userName,
+                //   date: date,
+                //   level: level,
+                //   player: user,
+                // });
+                // addDoc(collection(db, 'users', userUid, 'games'), {
+                //   userUid: userUid,
+                //   userName: userName,
+                //   date: date,
+                //   level: level,
+                //   player: user,
+                // });
               }}>
               <Image
                 source={require('../assets/attend.png')}
@@ -116,6 +117,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 15,
+    shadowColor: '#757575',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.44,
+    shadowRadius: 10.32,
+
+    elevation: 16,
+    marginHorizontal: 20,
   },
   upcomingMatchesText: {
     color: '#767676',
