@@ -31,6 +31,13 @@ import {db} from '../api/firebase';
 import {storage} from '../api/firebase';
 import {getStorage, uploadBytes, ref, getDownloadURL} from 'firebase/storage';
 import {
+  getDatabase,
+  ref as ref_database,
+  set as set_database,
+  update as update_database,
+} from 'firebase/database';
+import {realtimedb} from '../api/firebase';
+import {
   createUserWithEmailAndPassword,
   updateProfile,
   signOut,
@@ -200,6 +207,15 @@ const SettingsScreen = ({navigation}) => {
       //     updateEmail(authentication.currentUser, email).then(() => {});
       //   }
       // })
+      .then(() => {
+        update_database(
+          ref_database(realtimedb, 'users/' + authentication.currentUser.uid),
+          {
+            username: username,
+            profile_picture: photoURL,
+          },
+        );
+      })
 
       .then(() => {
         Alert.alert('Changes have been saved!');

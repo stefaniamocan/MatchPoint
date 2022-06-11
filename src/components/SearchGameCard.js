@@ -104,7 +104,7 @@ const SearchGameCard = ({pictureSource, cityLocation, name, level, data}) => {
         </View>
         <View
           style={{alignSelf: 'center', marginTop: 20, flexDirection: 'row'}}>
-          <Text style={{color: 'white', fontSize: 15, marginRight: 10}}>
+          <Text style={{color: 'white', fontSize: 14, marginRight: 7}}>
             I want oponents skill level from
           </Text>
 
@@ -117,15 +117,26 @@ const SearchGameCard = ({pictureSource, cityLocation, name, level, data}) => {
               width: 50,
               alignItems: 'center',
               alignSelf: 'center',
+              marginRight: -20,
+            }}
+          />
+          <Image
+            source={require('../assets/whiteArrowDown.png')}
+            resizeMode="contain"
+            style={{
+              width: 10,
+              height: 10,
+              alignSelf: 'flex-end',
+              marginLeft: 5,
             }}
           />
 
           <Text
             style={{
               color: 'white',
-              fontSize: 15,
-              marginRight: 10,
-              marginLeft: 10,
+              fontSize: 14,
+              marginRight: 7,
+              marginLeft: 7,
             }}>
             to
           </Text>
@@ -138,6 +149,17 @@ const SearchGameCard = ({pictureSource, cityLocation, name, level, data}) => {
               width: 50,
               alignItems: 'center',
               alignSelf: 'center',
+              marginRight: -20,
+            }}
+          />
+          <Image
+            source={require('../assets/whiteArrowDown.png')}
+            resizeMode="contain"
+            style={{
+              width: 10,
+              height: 10,
+              alignSelf: 'flex-end',
+              marginLeft: 5,
             }}
           />
         </View>

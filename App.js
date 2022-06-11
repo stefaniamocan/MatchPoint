@@ -17,6 +17,7 @@ import Header from './src/components/Header';
 import UserProfileScreen from './src/screens/UserProfileScreen';
 import {Image} from 'react-native';
 import SeeAllScreen from './src/screens/SeeAllScreen';
+import ChatScreen from './src/screens/ChatScreen';
 
 const Stack = createStackNavigator();
 
@@ -86,6 +87,28 @@ const App = () => {
           component={SeeAllScreen}
           options={{
             title: ' ',
+            headerTitleAlign: 'center',
+            headerTitleStyle: {
+              color: '#2E3A59',
+              fontWeight: '500',
+              fontSize: 16,
+            },
+
+            headerRight: () => (
+              <Image
+                source={require('./src/assets/logo.png')}
+                resizeMode="contain"
+                style={{width: 40, height: 40, marginRight: 5}}
+              />
+            ),
+          }}
+        />
+
+        <Stack.Screen
+          name="ChatScreen"
+          component={ChatScreen}
+          options={{
+            title: 'Chat',
             headerTitleAlign: 'center',
             headerTitleStyle: {
               color: '#2E3A59',

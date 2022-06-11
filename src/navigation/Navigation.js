@@ -153,7 +153,11 @@ const Navigation = ({navigation}) => {
             elevation: 0,
           },
           headerTitle: () => (
-            <Header loactionvisible={true} onPress={navigation.openDrawer} />
+            <Header
+              loactionvisible={false}
+              onPress={navigation.openDrawer}
+              pageTitle={'Games Overview'}
+            />
           ),
 
           tabBarIcon: ({focused}) => (

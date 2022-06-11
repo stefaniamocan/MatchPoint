@@ -9,6 +9,7 @@ import {
   Switch,
   ScrollView,
   FlatList,
+  Image,
 } from 'react-native';
 import Input from '../components/Input';
 import GeneralButton from '../components/GeneralButton';
@@ -34,6 +35,7 @@ import {
   limit,
 } from 'firebase/firestore';
 import {authentication} from '../api/firebase';
+import moment from 'moment';
 
 import {storage} from '../api/firebase';
 import {getStorage, uploadBytes, ref, getDownloadURL} from 'firebase/storage';
@@ -60,13 +62,15 @@ const HomeScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [games, setGames] = useState([
     {
-      userUid: authentication.currentUser.uid,
+      userUid: '8ttScH1eF4TcQpJPnYIWBq2f2N93',
       docid: doc.id,
       id: doc.id,
-      userName: 'hjk',
-      date: 'hjk',
+      userName: 'Thomas Smith',
+      date: '21 Jun 2022',
       level: 'Skill level 6',
-      profilePicture: require('../assets/profilePicture2.jpg'),
+      profilePicture: {
+        uri: 'https://firebasestorage.googleapis.com/v0/b/matchpoint-a0006.appspot.com/o/8ttScH1eF4TcQpJPnYIWBq2f2N93_profilePicture.jpg?alt=media&token=911469d8-3812-47eb-96a0-a063417eaf0e',
+      },
       location: 'Baza Sportiva Nr 2, Timisoara',
     },
   ]);
@@ -162,6 +166,9 @@ const HomeScreen = ({navigation}) => {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {});
+    setLoading(true);
+    setUserName(authentication.currentUser.displayName);
+    setLoading(false);
     return unsubscribe;
   }, [navigation]);
 
@@ -172,28 +179,56 @@ const HomeScreen = ({navigation}) => {
           ListHeaderComponent={
             <>
               <View style={{marginHorizontal: 20, marginTop: 20}}>
+                <View style={{flexDirection: 'row', marginLeft: 3}}>
+                  <Image
+                    source={require('../assets/sun.png')}
+                    resizeMode="contain"
+                    style={{
+                      width: 14.5,
+                      height: 14.5,
+                      alignSelf: 'center',
+                    }}
+                  />
+                  <Text
+                    style={{
+                      color: '#36B199',
+                      marginTop: 0,
+                      fontWeight: '500',
+                      marginLeft: 5,
+                      fontSize: 13,
+                    }}>
+                    {moment(new Date()).format('ddd DD MMM')}
+                  </Text>
+                </View>
+
                 <Text style={styles.greetingText}>
-                  Hi, {userName.substring(0, userName.indexOf(' '))}
+                  Hi,
+                  {' ' + userName.substring(0, userName.indexOf(' '))}
                 </Text>
-                <Text
+                {/* <Text
                   style={{
+                    // color: '#AEAEAE',
                     color: '#000',
-                    marginTop: 15,
-                    fontWeight: 'bold',
+                    marginTop: 20,
+                    fontWeight: '400',
                     marginLeft: 5,
-                    marginBottom: 10,
+                    fontStyle: 'italic',
+
+                    fontSize: 15,
                   }}>
-                  Set the details and find new Games
-                </Text>
+                  Set the details and find new games
+                </Text> */}
+                <View style={{marginTop: 18}}></View>
                 <SearchGameCard />
                 <View style={{marginTop: 20}}>
                   <Text
                     style={{
                       color: '#000',
-                      marginTop: 15,
-                      fontWeight: 'bold',
+                      marginTop: 5,
+                      fontWeight: '500',
                       marginLeft: 5,
-                      marginBottom: 10,
+                      marginBottom: 5,
+                      fontSize: 16,
                     }}>
                     Available Games
                   </Text>
@@ -214,6 +249,7 @@ const HomeScreen = ({navigation}) => {
               profilePicture={item.profilePicture}
               location={item.location}
               date={item.date}
+              chatScreenName="ChatScreen"
             />
           )}
           ListFooterComponent={
@@ -245,7 +281,7 @@ const styles = StyleSheet.create({
   greetingText: {
     color: '#000000',
     fontWeight: '600',
-    fontSize: 25,
+    fontSize: 26,
     marginLeft: 5,
   },
   upcomingMatchesText: {

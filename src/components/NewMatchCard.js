@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useContext, Component} from 'react';
 import {StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
-import {db} from '../api/firebase';
+import {authentication, db} from '../api/firebase';
+import {useNavigation, NavigationContainer} from '@react-navigation/native';
 import {
   collection,
   getDoc,
@@ -14,7 +15,16 @@ import {
   orderBy,
   update,
   updateDoc,
-} from 'firebase/firestore/lite';
+} from 'firebase/firestore';
+import {
+  getDatabase,
+  ref as ref_database,
+  set as set_database,
+  get as get_database,
+  update as update_databse,
+  push,
+} from 'firebase/database';
+import {realtimedb} from '../api/firebase';
 
 const NewMatchCard = ({
   visible,
@@ -26,7 +36,10 @@ const NewMatchCard = ({
   location,
   date,
   docid,
+  chatScreenName,
+  profileScreenName,
 }) => {
+  const navigation = useNavigation();
   const fetchGames = async () => {
     // const [user, setuser] = useState('r');
     // const subColRef = collection(db, 'users', user, 'games');
@@ -36,7 +49,53 @@ const NewMatchCard = ({
     //   // doc.data() is never undefined for query doc snapshots
     // console.log(doc.id, ' => ', doc.data());
     //});
-    console.log('ghjk');
+  };
+
+  const realdbChat = async () => {
+    let chatroomId = '';
+    const currentUserdb = await get_database(
+      ref_database(
+        realtimedb,
+        `users/${authentication.currentUser.uid}/${userUid}`,
+      ),
+    );
+
+    if (!currentUserdb.val()) {
+      const newChatroomRef = await push(ref_database(realtimedb, 'chatrooms'), {
+        user1: authentication.currentUser.uid,
+        user2: userUid,
+      });
+      chatroomId = newChatroomRef.key;
+      await set_database(
+        ref_database(
+          realtimedb,
+          `users/${authentication.currentUser.uid}/${userUid}`,
+        ),
+        {
+          chatRoomId: newChatroomRef.key,
+        },
+      );
+
+      await set_database(
+        ref_database(
+          realtimedb,
+          `users/${userUid}/${authentication.currentUser.uid}`,
+        ),
+        {
+          chatRoomId: newChatroomRef.key,
+        },
+      );
+    }
+  };
+
+  const message = async () => {
+    await realdbChat();
+
+    navigation.push(chatScreenName, {
+      reciverUserUid: userUid,
+      reciverProfilePicture: profilePicture.uri,
+      reciverUserName: userName,
+    });
   };
   return (
     <View style={styles.container}>
@@ -50,13 +109,19 @@ const NewMatchCard = ({
           <Text style={styles.name}>{userName}</Text>
           <Text style={styles.level}>{level}</Text>
         </View>
-        <Image
-          source={require('../assets/message.png')}
-          style={styles.messageicon}
-        />
+        <TouchableOpacity
+          style={{marginLeft: 'auto'}}
+          onPress={() => {
+            message();
+          }}>
+          <Image
+            source={require('../assets/message.png')}
+            style={styles.messageicon}
+          />
+        </TouchableOpacity>
       </View>
 
-      <View style={{...styles.flexView, marginTop: 23, alignItems: 'center'}} s>
+      <View style={{...styles.flexView, marginTop: 30, alignItems: 'center'}} s>
         <Image
           source={require('../assets/locationPin.png')}
           resizeMode="contain"
@@ -116,7 +181,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 15,
+    padding: 16,
     shadowColor: '#757575',
     shadowOffset: {
       width: 0,
@@ -160,16 +225,15 @@ const styles = StyleSheet.create({
     tintColor: '#B4B4B4',
     height: 30,
     width: 30,
-    marginLeft: 'auto',
   },
   locationPin: {
     tintColor: '#B4B4B4',
-    height: 15,
-    width: 15,
+    height: 13,
+    width: 13,
   },
   location: {
     marginLeft: 8,
-    fontSize: 14,
+    fontSize: 13,
     color: '#B4B4B4',
   },
   dateView: {
@@ -179,13 +243,13 @@ const styles = StyleSheet.create({
   },
   watchImage: {
     tintColor: '#B4B4B4',
-    height: 14,
-    width: 14,
+    height: 13,
+    width: 13,
   },
   dateText: {
     marginLeft: 8,
     color: '#B4B4B4',
-    fontSize: 14,
+    fontSize: 13,
   },
   attendImage: {
     tintColor: '#B4B4B4',
