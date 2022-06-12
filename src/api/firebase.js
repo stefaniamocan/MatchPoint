@@ -10,11 +10,14 @@ import {initializeFirestore} from 'firebase/firestore';
 const firebaseConfig = {
   apiKey: 'AIzaSyBsul7IqygJn6hJ2F6SC_6zOm66g8TeBjI',
   authDomain: 'matchpoint-a0006.firebaseapp.com',
+
   projectId: 'matchpoint-a0006',
   storageBucket: 'matchpoint-a0006.appspot.com',
   messagingSenderId: '917693738479',
   appId: '1:917693738479:web:5405624833828411d81a1a',
   measurementId: 'G-KDMQWQJJK8',
+  databaseURL:
+    'https://matchpoint-a0006-default-rtdb.europe-west1.firebasedatabase.app',
 };
 
 //Initialize firebase
@@ -26,5 +29,5 @@ const database = initializeFirestore(app, {
 
 export const authentication = getAuth(app);
 export const db = getFirestore();
-
+export const realtimedb = getDatabase(app);
 export const storage = getStorage(app);

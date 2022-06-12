@@ -27,62 +27,51 @@ import {
   update,
   updateDoc,
   limit,
-} from 'firebase/firestore/lite';
+} from 'firebase/firestore';
 import DatePicker from 'react-native-date-picker';
 
 const OverviewScreen = ({navigation}) => {
   const [user, setuser] = useState('r');
-  const [games, setGames] = useState(null);
-  const fetchGames = async () => {
-    const list = [];
-    const subColRef = query(collection(db, 'users', user, 'games'));
+  const [games, setGames] = useState([{id: 2}]);
 
-    const querySnapshot = await getDocs(subColRef);
-    querySnapshot.forEach(doc => {
-      const {userUid, userName, level, date} = doc.data();
-      list.push({
-        id: doc.id,
-        userName: userName,
-        date: date,
-        level: level,
-        profilePicture: require('../assets/profilePicture2.jpg'),
-        location: 'Baza Sportiva Nr 2, Timisoara',
-      });
-    });
-    setGames(list);
-    console.log(list);
-  };
-
-  useEffect(() => {
-    (async () => {
-      fetchGames();
-      console.log('qqqqqqqggggq');
-    })();
-  }, []);
-  return (
-    <View style={{flex: 1, padding: 20}}>
-      <FlatList
-        nestedScrollEnabled={true}
-        keyExtractor={item => item.id}
-        data={games}
-        renderItem={({item}) => (
-          <NewMatchCard
-            visible={false}
-            userName={item.userName}
-            level={item.level}
-            profilePicture={item.profilePicture}
-            location={item.location}
-            date={item.date}
-          />
-        )}
-        ListFooterComponent={
-          <>
-            <View style={{marginTop: 70}}></View>
-          </>
-        }
-      />
-    </View>
-  );
+  return <View style={styles.container}></View>;
 };
 
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: 'white',
+
+    height: '100%',
+  },
+  profilePicture: {
+    height: 60,
+    width: 60,
+    resizeMode: 'cover',
+    borderRadius: 10,
+    marginRight: 5,
+  },
+
+  flexView: {
+    flexDirection: 'row',
+  },
+
+  name: {
+    marginLeft: 8,
+    fontSize: 17,
+    fontWeight: '500',
+    color: '#707070',
+  },
+  level: {
+    marginTop: -2,
+    color: '#B4B4B4',
+    fontSize: 13,
+    marginLeft: 8,
+  },
+  messageicon: {
+    tintColor: '#B4B4B4',
+    height: 30,
+    width: 30,
+    marginLeft: 'auto',
+  },
+});
 export default OverviewScreen;

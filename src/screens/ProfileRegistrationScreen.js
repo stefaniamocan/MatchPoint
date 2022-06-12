@@ -31,7 +31,12 @@ import {db} from '../api/firebase';
 import {storage} from '../api/firebase';
 import {getStorage, uploadBytes, ref, getDownloadURL} from 'firebase/storage';
 import {createUserWithEmailAndPassword, updateProfile} from 'firebase/auth';
-
+import {
+  getDatabase,
+  ref as ref_database,
+  set as set_database,
+} from 'firebase/database';
+import {realtimedb} from '../api/firebase';
 const ProfileRegistrationScreen = ({navigation}) => {
   //get placheholder image from local asset to uri
   const placheHolderImageURI = Image.resolveAssetSource(placheHolderImage).uri;
@@ -43,6 +48,14 @@ const ProfileRegistrationScreen = ({navigation}) => {
   const [photoURL, setProfileImage] = useState(placheHolderImageURI);
 
   const storeBio = () => {
+    //create realtime datbase for chat function
+    set_database(
+      ref_database(realtimedb, 'users/' + authentication.currentUser.uid),
+      {
+        username: authentication.currentUser.displayName,
+        profile_picture: authentication.currentUser.photoURL,
+      },
+    );
     const userDocRef = doc(db, 'users', authentication.currentUser.uid);
     setDoc(userDocRef, {bio: bio}, {merge: true}).then(() => {
       navigation.navigate('GenderPicker');

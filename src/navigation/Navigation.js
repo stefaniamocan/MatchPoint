@@ -63,7 +63,11 @@ const Navigation = ({navigation}) => {
             elevation: 0,
           },
           headerTitle: () => (
-            <Header loactionvisible={true} onPress={navigation.openDrawer} />
+            <Header
+              loactionvisible={false}
+              pageTitle={'Home'}
+              onPress={navigation.openDrawer}
+            />
           ),
 
           tabBarIcon: ({focused}) => (
@@ -90,7 +94,11 @@ const Navigation = ({navigation}) => {
             elevation: 0,
           },
           headerTitle: () => (
-            <Header loactionvisible={true} onPress={navigation.openDrawer} />
+            <Header
+              loactionvisible={false}
+              onPress={navigation.openDrawer}
+              pageTitle={'Messages'}
+            />
           ),
 
           tabBarIcon: ({focused}) => (
@@ -149,7 +157,11 @@ const Navigation = ({navigation}) => {
             elevation: 0,
           },
           headerTitle: () => (
-            <Header loactionvisible={true} onPress={navigation.openDrawer} />
+            <Header
+              loactionvisible={false}
+              onPress={navigation.openDrawer}
+              pageTitle={'Games Overview'}
+            />
           ),
 
           tabBarIcon: ({focused}) => (

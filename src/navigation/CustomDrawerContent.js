@@ -112,12 +112,26 @@ const CustomDrawerContent = props => {
         />
 
         <DrawerItem
+          label="Requests"
+          labelStyle={styles.label}
+          style={{marginTop: 10}}
+          onPress={() => props.navigation.navigate('RequestScreen')}
+          icon={() => (
+            <Image
+              source={require('../assets/request.png')}
+              style={{height: 28, width: 25}}
+              resizeMode="contain"
+            />
+          )}
+        />
+
+        <DrawerItem
           label="Guidelines"
           labelStyle={styles.label}
           onPress={() => props.navigation.navigate('LevelGuidelines')}
           icon={() => (
             <Image
-              source={require('../assets/profile.png')}
+              source={require('../assets/lines.png')}
               style={{height: 20, width: 20}}
               resizeMode="contain"
             />
