@@ -165,11 +165,11 @@ const HomeScreen = ({navigation}) => {
   // }, []);
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {});
-    setLoading(true);
-    setUserName(authentication.currentUser.displayName);
-    setLoading(false);
-    return unsubscribe;
+    const unsubscribe = navigation.addListener('focus', () => {
+      setLoading(true);
+      setUserName(authentication.currentUser.displayName);
+      setLoading(false);
+    });
   }, [navigation]);
 
   return (

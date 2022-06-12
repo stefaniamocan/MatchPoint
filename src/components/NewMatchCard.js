@@ -51,12 +51,12 @@ const NewMatchCard = ({
     //});
   };
 
-  const realdbChat = async () => {
+  const inisalizeChat = async () => {
     let chatroomId = '';
     const currentUserdb = await get_database(
       ref_database(
         realtimedb,
-        `users/${authentication.currentUser.uid}/${userUid}`,
+        `users/${authentication.currentUser.uid}/members/${userUid}`,
       ),
     );
 
@@ -69,27 +69,31 @@ const NewMatchCard = ({
       await set_database(
         ref_database(
           realtimedb,
-          `users/${authentication.currentUser.uid}/${userUid}`,
+          `users/${authentication.currentUser.uid}/members/${userUid}`,
         ),
         {
           chatRoomId: newChatroomRef.key,
+          username: userName,
+          profile_picture: profilePicture.uri,
         },
       );
 
       await set_database(
         ref_database(
           realtimedb,
-          `users/${userUid}/${authentication.currentUser.uid}`,
+          `users/${userUid}/members/${authentication.currentUser.uid}`,
         ),
         {
           chatRoomId: newChatroomRef.key,
+          username: authentication.currentUser.displayName,
+          profile_picture: authentication.currentUser.photoURL,
         },
       );
     }
   };
 
   const message = async () => {
-    await realdbChat();
+    await inisalizeChat();
 
     navigation.push(chatScreenName, {
       reciverUserUid: userUid,

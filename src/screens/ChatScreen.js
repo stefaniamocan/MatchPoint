@@ -8,11 +8,14 @@ import {
   TouchableOpacity,
   Switch,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
-import {GiftedChat} from 'react-native-gifted-chat';
+import {GiftedChat, InputToolbar, Bubble, Send} from 'react-native-gifted-chat';
 import {authentication} from '../api/firebase';
 import {db} from '../api/firebase';
 import {createUserWithEmailAndPassword, updateProfile} from 'firebase/auth';
+import {MaterialIndicator} from 'react-native-indicators';
+import {IconButton} from 'react-native-paper';
 import {
   getDatabase,
   ref as ref_database,
@@ -27,12 +30,81 @@ const ChatScreen = ({route, navigation}) => {
   const {reciverUserUid, reciverProfilePicture, reciverUserName} = route.params;
   const [messages, setMessages] = useState([]);
 
+  //customize chat UI
+
+  const renderBubble = props => {
+    return (
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          right: {
+            backgroundColor: '#36B199',
+          },
+        }}
+        textStyle={{
+          right: {
+            color: '#fff',
+          },
+        }}
+      />
+    );
+  };
+
+  function renderSend(props) {
+    return (
+      <Send
+        {...props}
+        containerStyle={{shadowColor: '#fff', alignSelf: 'center'}}>
+        <View style={{justifyContent: 'center', alignItems: 'center'}}>
+          <IconButton icon="send-circle" size={38} color="#36B199" />
+        </View>
+      </Send>
+    );
+  }
+
+  function scrollToBottomComponent() {
+    return (
+      <View style={{justifyContent: 'center', alignItems: 'center'}}>
+        <IconButton icon="chevron-double-down" size={30} color="#36B199" />
+      </View>
+    );
+  }
+
+  function renderInputToolbar(props) {
+    return (
+      <InputToolbar
+        {...props}
+        containerStyle={{
+          borderRadius: 30,
+          backgroundColor: '#fff',
+          marginLeft: 15,
+          marginRight: 15,
+          marginBottom: 10,
+
+          padding: 5,
+          shadowColor: '#757575',
+          shadowOffset: {
+            width: 0,
+            height: 8,
+          },
+          shadowOpacity: 0.44,
+          shadowRadius: 10.32,
+
+          elevation: 16,
+          borderTopColor: '#fff',
+        }}
+        textInputStyle={{color: '#000'}}
+        placeholder="Type your message here..."
+      />
+    );
+  }
+
   // let chatroomId = chatRoomId.toString();
   const getKey = async () => {
     const key = await get_database(
       ref_database(
         realtimedb,
-        `users/${authentication.currentUser.uid}/${reciverUserUid}/chatRoomId`,
+        `users/${authentication.currentUser.uid}/members/${reciverUserUid}/chatRoomId`,
       ),
     );
 
@@ -71,42 +143,6 @@ const ChatScreen = ({route, navigation}) => {
       : [];
   }, []);
 
-  // useEffect(() => {
-  //   // setMessages([
-  //   //   {
-  //   //     _id: 1,
-  //   //     text: 'Hello developer',
-  //   //     createdAt: new Date(),
-  //   //     user: {
-  //   //       _id: 2,
-  //   //       name: 'React Native',
-  //   //       avatar: 'https://placeimg.com/140/140/any',
-  //   //     },
-  //   //   },
-  //   // ]);
-  //   let myChatroom = '';
-  //   const loadData = async () => {
-  //     myChatroom = await loadPreviousMessages();
-  //     if (myChatroom) {
-  //       setMessages(renderMessages(myChatroom.messages));
-  //     }
-  //   };
-
-  //   loadData();
-
-  //   if (myChatroom) {
-  //     const chatroomRef = ref_database(realtimedb, `chatrooms/${chatroomId}`);
-  //     onValue(chatroomRef, snapshot => {
-  //       const data = snapshot.val();
-  //       setMessages(renderMessages(data.messages));
-  //     });
-
-  //     return () => {
-  //       //remove chatroom listener
-  //       off(chatroomRef);
-  //     };
-  //   }
-  // }, [loadPreviousMessages, renderMessages]);
   useEffect(() => {
     let key = '';
     const loadData = async () => {
@@ -117,23 +153,14 @@ const ChatScreen = ({route, navigation}) => {
       }
     };
     loadData();
-
-    // setMessages([
-    //   {
-    //     _id: 1,
-    //     text: 'Hello developer',
-    //     createdAt: new Date(),
-    //     user: {
-    //       _id: 2,
-    //       name: 'React Native',
-    //       avatar: 'https://placeimg.com/140/140/any',
-    //     },
-    //   },
-    // ]);
+    navigation.setOptions({
+      title: reciverUserName,
+    });
     return () => {};
   }, []);
 
   const onSend = useCallback(async (msg = []) => {
+    let isApiSubscribed = true;
     const key = await getKey();
     let lastMessages = [];
 
@@ -142,6 +169,36 @@ const ChatScreen = ({route, navigation}) => {
       lastMessages = await loadPreviousMessages();
     }
     console.log(reciverProfilePicture);
+
+    update_database(
+      ref_database(
+        realtimedb,
+        `users/${authentication.currentUser.uid}/members/${reciverUserUid}`,
+      ),
+      {
+        lastMessage: [
+          {
+            createdAt: new Date(),
+            text: msg[0].text,
+          },
+        ],
+      },
+    );
+
+    update_database(
+      ref_database(
+        realtimedb,
+        `users/${reciverUserUid}/members/${authentication.currentUser.uid}`,
+      ),
+      {
+        lastMessage: [
+          {
+            createdAt: new Date(),
+            text: msg[0].text,
+          },
+        ],
+      },
+    );
 
     update_database(ref_database(realtimedb, `chatrooms/${key}`), {
       messages: [
@@ -153,7 +210,12 @@ const ChatScreen = ({route, navigation}) => {
         },
       ],
     });
+
     setMessages(prevMessages => GiftedChat.append(prevMessages, msg));
+    return () => {
+      // cancel the subscription
+      isApiSubscribed = false;
+    };
   }, []);
 
   return (
@@ -162,6 +224,23 @@ const ChatScreen = ({route, navigation}) => {
       onSend={messages => onSend(messages)}
       user={{
         _id: authentication.currentUser.uid,
+      }}
+      alwaysShowSend
+      renderInputToolbar={props => renderInputToolbar(props)}
+      renderBubble={renderBubble}
+      renderSend={renderSend}
+      scrollToBottom={true}
+      scrollToBottomComponent={scrollToBottomComponent}
+      scrollToBottomStyle={{
+        shadowColor: '#757575',
+        shadowOffset: {
+          width: 3,
+          height: 1,
+        },
+        shadowOpacity: 0.44,
+        shadowRadius: 10.32,
+
+        elevation: 6,
       }}
     />
   );

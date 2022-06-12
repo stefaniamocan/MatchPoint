@@ -94,7 +94,11 @@ const Navigation = ({navigation}) => {
             elevation: 0,
           },
           headerTitle: () => (
-            <Header loactionvisible={false} onPress={navigation.openDrawer} />
+            <Header
+              loactionvisible={false}
+              onPress={navigation.openDrawer}
+              pageTitle={'Messages'}
+            />
           ),
 
           tabBarIcon: ({focused}) => (
