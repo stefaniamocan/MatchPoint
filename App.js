@@ -131,7 +131,7 @@ const App = () => {
           name="SearchScreen"
           component={SearchScreen}
           options={{
-            title: ' ',
+            title: 'Search Users',
             headerTitleAlign: 'center',
             headerTitleStyle: {
               color: '#2E3A59',

@@ -37,37 +37,46 @@ const MessagingScreen = ({navigation}) => {
   const [list, setList] = useState([]);
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {});
+    //const unsubscribe = navigation.addListener('focus', () => {});
 
-    const loadData = async () => {
-      const dbRef = query(
-        ref_database(
-          realtimedb,
-          `users/${authentication.currentUser.uid}/members`,
-        ),
-        orderByChild('lastMessage/createdAt'),
-      );
-      let items = [];
-      onValue(dbRef, snapshot => {
-        snapshot.forEach(childSnapshot => {
-          const childKey = childSnapshot.key;
-          if (childSnapshot.val()['lastMessage'][0]['text'] !== 'empty') {
-            items.push({
-              id: childSnapshot.key,
-              useruid: childSnapshot.key,
-              userName: childSnapshot.val()['username'],
-              userPhotoURL: childSnapshot.val()['profile_picture'],
-              message: childSnapshot.val()['lastMessage'][0]['text'],
-              timestamp: childSnapshot.val()['lastMessage'][0]['createdAt'],
+    const unsubscribe = navigation.addListener('focus', () => {
+      const loadData = async () => {
+        const dbRef = query(
+          ref_database(
+            realtimedb,
+            `users/${authentication.currentUser.uid}/members`,
+          ),
+          orderByChild('lastMessage/createdAt'),
+        );
+        let items = [];
+        onValue(
+          dbRef,
+          snapshot => {
+            snapshot.forEach(childSnapshot => {
+              const childKey = childSnapshot.key;
+              if (childSnapshot.val()['lastMessage'][0]['text'] !== 'empty') {
+                items.push({
+                  id: childSnapshot.key,
+                  useruid: childSnapshot.key,
+                  userName: childSnapshot.val()['username'],
+                  userPhotoURL: childSnapshot.val()['profile_picture'],
+                  message: childSnapshot.val()['lastMessage'][0]['text'],
+                  timestamp: childSnapshot.val()['lastMessage'][0]['createdAt'],
+                });
+              }
             });
-          }
-        });
-        setList(items.reverse());
-      });
+            setList(items);
+          },
+          {
+            onlyOnce: true,
+          },
+        );
+      };
+      loadData();
+    });
+    return () => {
+      unsubscribe;
     };
-    loadData();
-
-    return unsubscribe;
   }, [navigation]);
 
   return (

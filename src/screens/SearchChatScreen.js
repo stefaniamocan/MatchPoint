@@ -22,6 +22,23 @@ import {
 const SearchScreen = ({navigation}) => {
   const [loading, setLoading] = useState(false);
   const [list, setList] = useState([]);
+  const [filderedlist, setfilderedlist] = useState([]);
+  const [search, setSearch] = useState('');
+
+  const searchFilter = text => {
+    if (text) {
+      const newData = list.filter(item => {
+        const itemData = item.userName;
+        const textData = text;
+        return itemData.indexOf(textData) > -1;
+      });
+      setfilderedlist(newData);
+      setSearch(text);
+    } else {
+      setfilderedlist(list);
+      setSearch(text);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {});
@@ -42,6 +59,7 @@ const SearchScreen = ({navigation}) => {
               });
             }
             setList(items);
+            setfilderedlist(items);
           });
         },
         {
@@ -60,12 +78,38 @@ const SearchScreen = ({navigation}) => {
       contentContainerStyle={{borderTopRightRadius: 20}}
       ListHeaderComponent={
         <>
-          <View></View>
+          <View
+            style={{
+              backgroundColor: '#36B199',
+              marginBottom: 15,
+              paddingVertical: 10,
+            }}>
+            <View
+              style={{
+                backgroundColor: '#6EC7B6',
+                marginHorizontal: 15,
+                borderRadius: 30,
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: 10,
+              }}>
+              <Image
+                source={require('../assets/search.png')}
+                resizeMode="contain"
+                style={{width: 20, height: 20}}
+              />
+              <TextInput
+                style={{flex: 1, padding: 7}}
+                placeholder="Search Users"
+                onChangeText={text => searchFilter(text)}
+              />
+            </View>
+          </View>
         </>
       }
       nestedScrollEnabled={true}
       keyExtractor={item => item.id}
-      data={list}
+      data={filderedlist}
       renderItem={({item}) => (
         <ChatComponent
           useruid={item.useruid}
