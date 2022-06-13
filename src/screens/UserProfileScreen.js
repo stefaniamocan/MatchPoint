@@ -72,55 +72,55 @@ const ProfileScreen2 = ({route, navigation}) => {
   const [totalGames, settotalGames] = useState(20);
 
   //fetch data
-  const fetchData = async () => {
-    setLoading(true);
+  // const fetchData = async () => {
+  //   setLoading(true);
 
-    //get user profile Data
-    const docRef = doc(db, 'users', userUid);
-    const docSnapProfile = await getDoc(docRef);
-    if (docSnapProfile.exists()) {
-      setBio(docSnapProfile.data().bio);
-      setLevel(parseInt(docSnapProfile.data().level));
-      setUsername(docSnapProfile.data().name);
-      setProfileImage(docSnapProfile.data().ProfileImage);
-    }
+  //   //get user profile Data
+  //   const docRef = doc(db, 'users', userUid);
+  //   const docSnapProfile = await getDoc(docRef);
+  //   if (docSnapProfile.exists()) {
+  //     setBio(docSnapProfile.data().bio);
+  //     setLevel(parseInt(docSnapProfile.data().level));
+  //     setUsername(docSnapProfile.data().name);
+  //     setProfileImage(docSnapProfile.data().ProfileImage);
+  //   }
 
-    //get reviews + total ratings
-    const subColRef = query(
-      collection(db, 'reviews', userUid, 'recivedRatings'),
-      orderBy('postTime', 'asc'),
-    );
+  //   //get reviews + total ratings
+  //   const subColRef = query(
+  //     collection(db, 'reviews', userUid, 'recivedRatings'),
+  //     orderBy('postTime', 'asc'),
+  //   );
 
-    const querySnapshot = await getDocs(subColRef);
-    const list = [];
-    let calculateRating = 0;
-    await querySnapshot.forEach(doc => {
-      const {postTime, rating, userName} = doc.data();
-      //const date = postTime.toDate().toDateString();
-      const date = moment(postTime.toDate()).fromNow();
-      calculateRating = calculateRating + rating;
-      list.push({
-        id: doc.id,
-        review_userPhotoURL: photoURL,
-        review_userName: doc.userName,
-        review_userRating: rating,
-        review_userUid: doc.id,
-        review_time: date,
-      });
-    });
-    await setReviews(list);
-    await settotalRating(list.length);
-    const totalrate = calculateRating / list.length;
-    console.log(totalrate);
-    await setRating(totalrate);
+  //   const querySnapshot = await getDocs(subColRef);
+  //   const list = [];
+  //   let calculateRating = 0;
+  //   await querySnapshot.forEach(doc => {
+  //     const {postTime, rating, userName} = doc.data();
+  //     //const date = postTime.toDate().toDateString();
+  //     const date = moment(postTime.toDate()).fromNow();
+  //     calculateRating = calculateRating + rating;
+  //     list.push({
+  //       id: doc.id,
+  //       review_userPhotoURL: photoURL,
+  //       review_userName: doc.userName,
+  //       review_userRating: rating,
+  //       review_userUid: doc.id,
+  //       review_time: date,
+  //     });
+  //   });
+  //   await setReviews(list);
+  //   await settotalRating(list.length);
+  //   const totalrate = calculateRating / list.length;
+  //   console.log(totalrate);
+  //   await setRating(totalrate);
 
-    setLoading(false);
-  };
+  //   setLoading(false);
+  // };
 
   //update data before page is rendered
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      fetchData();
+      //fetchData();
     });
     return unsubscribe;
   }, [navigation]);

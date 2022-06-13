@@ -9,11 +9,12 @@ import {
   Button,
   Darw,
   Image,
+  Alert,
 } from 'react-native';
 import {TouchableOpacity} from 'react-native';
 import GeneralButton from '../components/GeneralButton';
 import DatePicker from 'react-native-date-picker';
-import {db} from '../api/firebase';
+import {authentication, db} from '../api/firebase';
 import {
   collection,
   getDoc,
@@ -21,7 +22,9 @@ import {
   doc,
   addDoc,
   getDocs,
-} from 'firebase/firestore/lite';
+  updateDoc,
+  arrayUnion,
+} from 'firebase/firestore';
 import LevelComponent from '../components/LevelComponent';
 import Input from '../components/Input';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
@@ -31,25 +34,51 @@ import CustomSliderMarkerRight from '@ptomasroos/react-native-multi-slider';
 const GenerateGameScreen = () => {
   const [user, setUser] = useState();
   const [date, setDate] = useState(new Date());
-  const [city, setCity] = useState();
-  const [court, setCourt] = useState();
 
   const [openDate, setOpenDate] = useState(false);
   const [openTime, setOpenTime] = useState(false);
-
+  const [location, setLocation] = useState(false);
+  const [court, setCourt] = useState(false);
   const [nonCollidingMultiSliderValue, setNonCollidingMultiSliderValue] =
     useState([0, 100]);
   const [multiSliderValue, setMultiSliderValue] = useState([3, 7]);
+
   const multiSliderValuesChange = values => setMultiSliderValue(values);
 
   // const postGame = (user, date, level) => {
-  //   addDoc(collection(db, 'games'), {
-  //     userUid: user,
-  //     userName: userName,
+  //   grameRef= addDoc(collection(db, 'games'), {
+  //     user1: user,
   //     date: date,
-  //     level: level,
+  //     levelmin: level,
+  //     levelmax: levelmax
+  //     city:
+  ///    court name:
+  //     user2:
+  //   request
   //   });
   // };
+
+  const postGame = async (date, min, max, location, court) => {
+    const gameRef = await addDoc(collection(db, 'games'), {
+      user1: authentication.currentUser.uid,
+      date: date,
+      levelmin: min,
+      levelmax: max,
+      location: location,
+      court: court,
+      request: false,
+    });
+
+    const gameId = gameRef.id;
+
+    const docRef = doc(db, 'users', authentication.currentUser.uid);
+    if (docRef) {
+      await updateDoc(docRef, {
+        games: arrayUnion(gameId),
+      });
+    }
+    Alert.alert('Game posted!');
+  };
 
   return (
     <ScrollView style={styles.mainContainer}>
@@ -192,7 +221,7 @@ const GenerateGameScreen = () => {
           style={styles.textArea}
           placeholderTextColor="grey"
           autoCorrect={false}
-          onChangeText={newValue => setCity(newValue)}></TextInput>
+          onChangeText={newValue => setLocation(newValue)}></TextInput>
         <Text style={{color: '#B7B7B7', marginHorizontal: 7}}>Court Name</Text>
         <TextInput
           underlineColorAndroid="transparent"
@@ -204,7 +233,15 @@ const GenerateGameScreen = () => {
           onChangeText={newValue => setCourt(newValue)}></TextInput>
         <GeneralButton
           title={'Post Game'}
-          onPress={() => postGame()}></GeneralButton>
+          onPress={() =>
+            postGame(
+              date,
+              multiSliderValue[0],
+              multiSliderValue[1],
+              location,
+              court,
+            )
+          }></GeneralButton>
       </View>
     </ScrollView>
   );

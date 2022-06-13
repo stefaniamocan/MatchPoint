@@ -35,7 +35,7 @@ import {
 } from 'firebase/firestore';
 import {authentication} from '../api/firebase';
 import RequestComponent from '../components/RequestComponent';
-
+import SwitchCustom from '../components/SwitchCustom';
 import {storage} from '../api/firebase';
 import {getStorage, uploadBytes, ref, getDownloadURL} from 'firebase/storage';
 import {firebase} from '@react-native-firebase/firestore';
@@ -44,29 +44,82 @@ import SearchGameCard from '../components/SearchGameCard';
 var {Platform} = React;
 
 const RequestScreen = ({navigation}) => {
-  const [games, setGames] = useState([
-    {
-      useruid: authentication.currentUser.uid,
-      id: doc.id,
-      userName: 'Alexandru Raicu',
-      date: 'hjk',
-      level: 'Skill level 6',
-      profilePicture: require('../assets/profilePicture2.jpg'),
-      location: 'Baza Sportiva Nr 2, Timisoara',
-      screenName: 'UserProfile',
-    },
-  ]);
-  const [userLevel, setUserLevel] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [upcomingName, setupcomingName] = useState(null);
-  const [upcomingLevel, setupcomingLevel] = useState(null);
-  const [upcomingDate, setupcomingDate] = useState(null);
-  const [userName, setUserName] = useState(
-    authentication.currentUser.displayName,
-  );
+  const [games, setGames] = useState([]);
+  const [filteredGames, setFilteredGames] = useState([]);
+
+  const fetchGames = async () => {
+    setLoading(true);
+    let list = [];
+    let list2 = [];
+    const currentUserRef = doc(db, 'users', authentication.currentUser.uid);
+    const docSnap = await getDoc(currentUserRef);
+    if (docSnap.exists()) {
+      const requests = docSnap.data().request;
+      requests.forEach(async request => {
+        const oponentRef = doc(db, 'users', request.oponent);
+        const oponentSnap = await getDoc(oponentRef);
+        if (oponentSnap.exists()) {
+          list.push({
+            id: request.id,
+            oponentName: oponentSnap.data().name,
+            oponentPhoto: {uri: oponentSnap.data().ProfileImage},
+            oponentSkill: 'Level ' + oponentSnap.data().level,
+            gameId: request.gameId,
+            incoming: request.incoming,
+            date: request.date,
+            oponentUid: request.oponent,
+          });
+
+          if (request.incoming == true) {
+            list2.push({
+              id: request.id,
+              oponentName: oponentSnap.data().name,
+              oponentPhoto: {uri: oponentSnap.data().ProfileImage},
+              oponentSkill: 'Level ' + oponentSnap.data().level,
+              gameId: request.gameId,
+              incoming: request.incoming,
+              date: request.date,
+              oponentUid: request.oponent,
+            });
+          }
+        }
+      });
+
+      setGames(list);
+      setFilteredGames(list2);
+    }
+    setTimeout(() => {
+      setLoading(false);
+    }, 700);
+  };
+
+  const filter = index => {
+    if (index == 1) {
+      const newData = games.filter(item => {
+        const gamesIncoming = item.incoming;
+        const toogleIncoming = true;
+        return gamesIncoming == toogleIncoming;
+      });
+
+      setFilteredGames(newData);
+    }
+    if (index == 2) {
+      const newData = games.filter(item => {
+        const gamesIncoming = item.incoming;
+        const toogleIncoming = false;
+        return gamesIncoming == toogleIncoming;
+      });
+
+      setFilteredGames(newData);
+    }
+  };
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {});
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchGames();
+      console.log(games);
+    });
     return unsubscribe;
   }, [navigation]);
 
@@ -82,21 +135,29 @@ const RequestScreen = ({navigation}) => {
                 onPress={navigation.openDrawer}
                 left={0}
               />
+
+              <SwitchCustom
+                selectionMode={1}
+                option1={'Incoming'}
+                option2={'Pending'}
+                onSelectSwitch={filter}
+              />
             </>
           }
           nestedScrollEnabled={true}
           keyExtractor={item => item.id}
-          data={games}
+          data={filteredGames}
           renderItem={({item}) => (
             <RequestComponent
               visible={true}
-              useruid={item.useruid}
-              userName={item.userName}
-              level={item.level}
-              profilePicture={item.profilePicture}
-              location={item.location}
+              useruid={item.oponentUid}
+              userName={item.oponentName}
+              level={item.oponentSkill}
+              profilePicture={item.oponentPhoto}
               date={item.date}
-              screenName={item.screenName}
+              gameId={item.gameId}
+              incoming={item.incoming}
+              screenName="UserProfile"
             />
           )}
           ListFooterComponent={
@@ -122,8 +183,6 @@ const RequestScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
-
-    height: '100%',
   },
   greetingText: {
     color: '#000000',

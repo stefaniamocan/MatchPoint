@@ -35,45 +35,18 @@ import {
   limit,
 } from 'firebase/firestore';
 import {authentication} from '../api/firebase';
-import moment from 'moment';
 
 import {storage} from '../api/firebase';
 import {getStorage, uploadBytes, ref, getDownloadURL} from 'firebase/storage';
 import {firebase} from '@react-native-firebase/firestore';
 import {MaterialIndicator} from 'react-native-indicators';
+import moment from 'moment';
 import SearchGameCard from '../components/SearchGameCard';
 var {Platform} = React;
 
 const HomeScreen = ({navigation}) => {
-  const monthNames = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
   const [email, setEmail] = useState('');
-  const [games, setGames] = useState([
-    {
-      userUid: '8ttScH1eF4TcQpJPnYIWBq2f2N93',
-      docid: doc.id,
-      id: doc.id,
-      userName: 'Thomas Smith',
-      date: '21 Jun 2022',
-      level: 'Skill level 6',
-      profilePicture: {
-        uri: 'https://firebasestorage.googleapis.com/v0/b/matchpoint-a0006.appspot.com/o/8ttScH1eF4TcQpJPnYIWBq2f2N93_profilePicture.jpg?alt=media&token=911469d8-3812-47eb-96a0-a063417eaf0e',
-      },
-      location: 'Baza Sportiva Nr 2, Timisoara',
-    },
-  ]);
+  const [games, setGames] = useState(null);
   const [userLevel, setUserLevel] = useState(null);
   const [loading, setLoading] = useState(false);
   const [upcomingName, setupcomingName] = useState(null);
@@ -83,93 +56,70 @@ const HomeScreen = ({navigation}) => {
     authentication.currentUser.displayName,
   );
 
-  //get games
-  // const upcominMatch = async () => {
-  //   const subColRef = query(
-  //     collection(db, 'users', user, 'games'),
-  //     orderBy('date', 'asc'),
-  //     limit(1),
-  //   );
-  //   const querySnapshot = await getDocs(subColRef);
-  //   querySnapshot.forEach(doc => {
-  //     const {userName, level, date} = doc.data();
-  //     setupcomingName(userName);
-  //     setupcomingLevel(level);
-  //     setupcomingDate(date);
-  //   });
-  // };
-  // const fetchGames = async () => {
-  //   const list = [];
-  //   console.log(userLevel);
-  //   const q = query(
-  //     collection(db, 'games'),
+  //fetch games form database
+  const fetchGames = async () => {
+    //fetch current user level
+    setLoading(true);
+    let list = [];
+    const docRef = doc(db, 'users', authentication.currentUser.uid);
+    const docSnapProfile = await getDoc(docRef);
+    if (docSnapProfile.exists()) {
+      setUserLevel(parseInt(docSnapProfile.data().level));
+    }
 
-  //     where('level', '==', userLevel),
-  //   );
+    const q = query(
+      collection(db, 'games'),
+      where('levelmax', '>=', userLevel),
+    );
 
-  //   const querySnapshot = await getDocs(q);
-  //   querySnapshot.forEach(doc => {
-  //     const {userUid, userName, level, date, player} = doc.data();
-  //     const date2 = date ? date.toDate() : null;
-  //     if (userUid != user) {
-  //       if (!player) {
-  //         list.push({
-  //           userUid: userUid,
-  //           docid: doc.id,
-  //           id: doc.id,
-  //           userName,
-  //           date:
-  //             date2.getDate() +
-  //             ' ' +
-  //             monthNames[date2.getMonth()].substring(0, 3) +
-  //             ' ' +
-  //             date2.getFullYear() +
-  //             ', ' +
-  //             date2.getHours() +
-  //             ':' +
-  //             date2.getMinutes(),
-  //           level,
-  //           profilePicture: require('../assets/profilePicture2.jpg'),
-  //           location: 'Baza Sportiva Nr 2, Timisoara',
-  //         });
-  //       }
-  //       //don't display matches posted by the current user
-  //     }
-  //   });
-  //   setGames(list);
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach(async doc1 => {
+      const {court, date, location, user1, levelmin, request} = doc1.data();
+      const date2 = moment(date.toDate()).format('MMM Do, h:mm a');
 
-  //   if (loading) {
-  //     setLoading(false);
-  //   }
-  // };
-  // const setName = async id => {
-  //   const userSnapshot = await getDoc(doc(db, 'users', id));
-  //   if (userSnapshot.exists()) {
-  //     const name = userSnapshot.data().name;
-  //     const lvl = userSnapshot.data().level;
+      const docRef = doc(db, 'users', user1);
+      const docSnapProfile = await getDoc(docRef);
+      let user_Name = '';
+      let profilepic = '';
+      var skillLevel = '';
+      if (docSnapProfile.exists()) {
+        user_Name = docSnapProfile.data().name;
+        profilepic = docSnapProfile.data().ProfileImage;
+        skillLevel = docSnapProfile.data().level;
+      }
 
-  //     await setUserName(name);
-  //     await setUserLevel(lvl);
-  //   } else {
-  //     console.log("User dosen't exist");
-  //   }
-  // };
+      if (user1 != authentication.currentUser.uid && !request) {
+        list.push({
+          userUid: user1,
+          docid: doc1.id,
+          id: doc1.id,
+          userName: user_Name,
+          date: date2,
+          profilePicture: {uri: profilepic},
+          location: court + ', ' + location,
+          level: 'Skill level: ' + skillLevel,
+        });
+      }
+      console.log('list2');
+      console.log(list);
+      setGames(list);
+    });
 
-  // useEffect(() => {
-  //   (async () => {
-  //     setName(user);
-  //     upcominMatch();
-  //     fetchGames();
-  //     console.log('rrrrrrrrrrsrrrrrr');
-  //   })();
-  // }, []);
+    setTimeout(
+      () => setLoading(false),
+
+      5000,
+    );
+  };
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      setLoading(true);
-      setUserName(authentication.currentUser.displayName);
-      setLoading(false);
+      fetchGames();
+      console.log('fghjk');
+      console.log(games);
     });
+
+    return unsubscribe;
   }, [navigation]);
 
   return (
@@ -275,8 +225,6 @@ const HomeScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
-
-    height: '100%',
   },
   greetingText: {
     color: '#000000',

@@ -5,7 +5,7 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 import Feather from 'react-native-vector-icons/Feather';
 import Stars from 'react-native-stars';
 import {useNavigation, NavigationContainer} from '@react-navigation/native';
-const ReviewComponent = ({reviews}) => {
+const ReviewComponent = ({reviews, uid}) => {
   const saveRating = val => {
     Alert.alert(
       'Post Rating',
@@ -18,6 +18,10 @@ const ReviewComponent = ({reviews}) => {
       ],
     );
   };
+
+  //post review
+
+  const postreview = async () => {};
   const [rating, setRating] = useState(0);
   return (
     <View

@@ -1,5 +1,12 @@
 import React, {useState, useEffect, useContext, Component} from 'react';
-import {StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from 'react-native';
 import {authentication, db} from '../api/firebase';
 import {useNavigation, NavigationContainer} from '@react-navigation/native';
 import {
@@ -15,6 +22,7 @@ import {
   orderBy,
   update,
   updateDoc,
+  arrayUnion,
 } from 'firebase/firestore';
 import {
   getDatabase,
@@ -75,6 +83,12 @@ const NewMatchCard = ({
           chatRoomId: newChatroomRef.key,
           username: userName,
           profile_picture: profilePicture.uri,
+          lastMessage: [
+            {
+              createdAt: new Date(),
+              text: 'empty',
+            },
+          ],
         },
       );
 
@@ -87,6 +101,12 @@ const NewMatchCard = ({
           chatRoomId: newChatroomRef.key,
           username: authentication.currentUser.displayName,
           profile_picture: authentication.currentUser.photoURL,
+          lastMessage: [
+            {
+              createdAt: new Date(),
+              text: 'empty',
+            },
+          ],
         },
       );
     }
@@ -101,6 +121,41 @@ const NewMatchCard = ({
       reciverUserName: userName,
     });
   };
+
+  const generaterequest = async () => {
+    const currentuserRef = doc(db, 'users', authentication.currentUser.uid);
+
+    const currentuserObj = {
+      gameId: docid,
+      incoming: false,
+      oponent: userUid,
+      date: date,
+    };
+    await updateDoc(currentuserRef, {
+      request: arrayUnion(currentuserObj),
+    });
+  };
+
+  const generateRequestOponent = async () => {
+    const oponentuserRef = doc(db, 'users', userUid);
+    const oponentuserObj = {
+      gameId: docid,
+      incoming: true,
+      oponent: authentication.currentUser.uid,
+      date: date,
+    };
+    await updateDoc(oponentuserRef, {
+      request: arrayUnion(oponentuserObj),
+    });
+  };
+
+  const updateGame = async () => {
+    const gameRef = doc(db, 'games', docid);
+    await updateDoc(gameRef, {
+      request: true,
+    });
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.flexView}>
@@ -125,7 +180,7 @@ const NewMatchCard = ({
         </TouchableOpacity>
       </View>
 
-      <View style={{...styles.flexView, marginTop: 30, alignItems: 'center'}} s>
+      <View style={{...styles.flexView, marginTop: 30, alignItems: 'center'}}>
         <Image
           source={require('../assets/locationPin.png')}
           resizeMode="contain"
@@ -145,24 +200,11 @@ const NewMatchCard = ({
         {visible ? (
           <>
             <TouchableOpacity
-              onPress={() => {
-                // updateDoc(doc(db, 'games', docid), {
-                //   player: user,
-                // });
-                // addDoc(collection(db, 'users', user, 'games'), {
-                //   userUid: userUid,
-                //   userName: userName,
-                //   date: date,
-                //   level: level,
-                //   player: user,
-                // });
-                // addDoc(collection(db, 'users', userUid, 'games'), {
-                //   userUid: userUid,
-                //   userName: userName,
-                //   date: date,
-                //   level: level,
-                //   player: user,
-                // });
+              onPress={async () => {
+                await generaterequest();
+                await generateRequestOponent();
+                await updateGame();
+                Alert.alert('Request sent!');
               }}>
               <Image
                 source={require('../assets/attend.png')}
@@ -194,8 +236,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.44,
     shadowRadius: 10.32,
 
-    elevation: 16,
+    elevation: 6,
     marginHorizontal: 20,
+    marginBottom: 5,
   },
   upcomingMatchesText: {
     color: '#767676',

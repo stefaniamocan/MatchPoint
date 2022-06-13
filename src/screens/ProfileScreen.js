@@ -107,7 +107,7 @@ const ProfileScreen = ({navigation}) => {
     let list = [];
     let first = '';
     let second = '';
-    let calculateRating = 0;
+    var calculateRating = 0;
     await querySnapshot.forEach(async doc1 => {
       let id = doc1.id;
       const docRef = doc(db, 'users', id);
@@ -116,7 +116,7 @@ const ProfileScreen = ({navigation}) => {
         first = docSnapProfile.data().name;
         second = docSnapProfile.data().ProfileImage;
       }
-      console.log(first);
+
       const {postTime, rating} = doc1.data();
       //const date = postTime.toDate().toDateString();
       const date = moment(postTime.toDate()).fromNow();
@@ -130,18 +130,9 @@ const ProfileScreen = ({navigation}) => {
         review_time: date,
       });
       setReviews(list);
-      console.log(calculateRating);
       calculateRating = calculateRating + rating;
+      //console.log(calculateRating);
     });
-
-    // console.log('gogoasa');
-    // console.log(JSON.stringify(list));
-    settotalRating(reviews.length);
-    const totalrate = calculateRating / reviews.length;
-    setRating(calculateRating);
-    console.log('Blabla');
-
-    setLoading(false);
 
     let list2 = [
       {
@@ -159,6 +150,12 @@ const ProfileScreen = ({navigation}) => {
     ];
 
     setGames(list2);
+    setTimeout(() => {
+      const totalrate = calculateRating / list.length;
+      settotalRating(reviews.length);
+      setRating(totalrate);
+      setLoading(false);
+    }, 700);
   };
 
   //update data before page is rendered

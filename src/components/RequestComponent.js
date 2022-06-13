@@ -1,5 +1,12 @@
 import React, {useState, useEffect, useContext, Component} from 'react';
-import {StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from 'react-native';
 import GeneralButton from './GeneralButton';
 import {db} from '../api/firebase';
 import {
@@ -15,19 +22,91 @@ import {
   orderBy,
   update,
   updateDoc,
+  arrayRemove,
+  arrayUnion,
 } from 'firebase/firestore';
+import {authentication} from '../api/firebase';
 import {useNavigation, NavigationContainer} from '@react-navigation/native';
 const RequestComponent = ({
+  gameId,
   useruid,
   userName,
   level,
   screenName,
   profilePicture,
-  location,
   date,
+  incoming,
   ...rest
 }) => {
   const navigation = useNavigation();
+
+  const declineCurrent = async () => {
+    const currentuserRef = doc(db, 'users', authentication.currentUser.uid);
+    await updateDoc(currentuserRef, {
+      request: arrayRemove({
+        gameId: gameId,
+        incoming: false,
+        oponent: useruid,
+        date: date,
+      }),
+    });
+    console.log(date);
+  };
+  const declineOponent = async () => {
+    const opuserRef = doc(db, 'users', useruid);
+    await updateDoc(opuserRef, {
+      request: arrayRemove({
+        gameId: gameId,
+        incoming: true,
+        oponent: authentication.currentUser.uid,
+        date: date,
+      }),
+    });
+  };
+
+  const updateDeleteGame = async () => {
+    const gamesRef = doc(db, 'games', gameId);
+    await updateDoc(gamesRef, {
+      request: false,
+    });
+  };
+  const acceptOponent = async () => {
+    const opuserRef = doc(db, 'users', useruid);
+    await updateDoc(opuserRef, {
+      games: arrayUnion(gameId),
+    });
+  };
+
+  const acceptUpdateGame = async () => {
+    const gamesRef = doc(db, 'games', gameId);
+    await updateDoc(gamesRef, {
+      user2: useruid,
+    });
+  };
+
+  const acceptDeleteCurrent = async () => {
+    const currentuserRef = doc(db, 'users', authentication.currentUser.uid);
+    await updateDoc(currentuserRef, {
+      request: arrayRemove({
+        date: date,
+        gameId: gameId,
+        incoming: true,
+        oponent: useruid,
+      }),
+    });
+    console.log(date);
+  };
+  const acceptDeleteOponent = async () => {
+    const opuserRef = doc(db, 'users', useruid);
+    await updateDoc(opuserRef, {
+      request: arrayRemove({
+        gameId: gameId,
+        incoming: false,
+        oponent: authentication.currentUser.uid,
+        date: date,
+      }),
+    });
+  };
   return (
     <View style={styles.container}>
       <View
@@ -45,9 +124,7 @@ const RequestComponent = ({
             resizeMode="contain"
             style={{height: 12, width: 12, alignSelf: 'center', marginRight: 5}}
           />
-          <Text style={{color: 'white', fontSize: 15}}>
-            12 Jun 2022, 8:00 am
-          </Text>
+          <Text style={{color: 'white', fontSize: 15}}>{date}</Text>
         </View>
       </View>
       <View style={{paddingHorizontal: 22, paddingVertical: 20}}>
@@ -74,26 +151,60 @@ const RequestComponent = ({
             style={styles.messageicon}
           />
         </View>
+        {incoming ? (
+          <>
+            <View
+              style={{...styles.flexView, marginTop: 25, alignItems: 'center'}}>
+              <GeneralButton
+                title={'Accept'}
+                buttonStyle={{width: 160, padding: 8, fontWeight: '500'}}
+                textStyle={{fontWeight: '500'}}
+                onPress={async () => {
+                  await acceptOponent();
+                  await acceptUpdateGame();
+                  await acceptDeleteCurrent();
+                  await acceptDeleteOponent();
 
-        <View style={{...styles.flexView, marginTop: 25, alignItems: 'center'}}>
-          <GeneralButton
-            title={'Accept'}
-            buttonStyle={{width: 160, padding: 8, fontWeight: '500'}}
-            textStyle={{fontWeight: '500'}}
-            //onPress={() => navigation.navigate('ChooseLevelScreen')}
-          />
-          <GeneralButton
-            title={'Decline'}
-            buttonStyle={{
-              width: 110,
-              padding: 8,
-              marginLeft: 8,
-              backgroundColor: '#EEEEEE',
-            }}
-            textStyle={{color: '#B4B4B4', fontWeight: '500'}}
-            //onPress={() => navigation.navigate('ChooseLevelScreen')}
-          />
-        </View>
+                  Alert.alert('Request accepted!');
+                }}
+              />
+              <GeneralButton
+                title={'Decline'}
+                buttonStyle={{
+                  width: 110,
+                  padding: 8,
+                  marginLeft: 8,
+                  backgroundColor: '#EEEEEE',
+                }}
+                textStyle={{color: '#B4B4B4', fontWeight: '500'}}
+                onPress={async () => {
+                  await declineCurrent();
+                  await declineOponent();
+                  await updateDeleteGame();
+                  Alert.alert('Request delted!');
+                }}
+              />
+            </View>
+          </>
+        ) : (
+          <>
+            <View Style={{flexDirection: 'row', marginTop: 25}}>
+              <View
+                style={{
+                  borderColor: '#B9E4DB',
+                  borderWidth: 1.5,
+                  marginTop: 25,
+                  marginLeft: 'auto',
+                  padding: 10,
+                  borderRadius: 30,
+                }}>
+                <Text style={{color: '#B4B4B4', fontWeight: '500'}}>
+                  Request pending
+                </Text>
+              </View>
+            </View>
+          </>
+        )}
       </View>
     </View>
   );
@@ -101,7 +212,6 @@ const RequestComponent = ({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     marginTop: 20,
     backgroundColor: '#fff',
     borderRadius: 15,
