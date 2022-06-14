@@ -169,7 +169,8 @@ const SettingsScreen = ({navigation}) => {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       setBio(docSnap.data().bio);
-      setLevel(parseInt(docSnap.data().level));
+      const eloConverted = Math.round(docSnap.data().eloRating / 200);
+      setLevel(eloConverted + ' (' + docSnap.data().eloRating + ' elo)');
       setGender(docSnap.data().gender);
       if (gender == 'female') {
         setfemaleBoolean(true);
@@ -299,9 +300,9 @@ const SettingsScreen = ({navigation}) => {
             />
           </View>
 
-          <View style={{...styles.photoContainer}}>
-            <Text style={{marginRight: 20, ...styles.levelText}}>Level</Text>
-            <SliderPicker
+          <View style={{...styles.photoContainer, marginTop: 20}}>
+            <Text style={{marginRight: 20, ...styles.levelText}}>Skill</Text>
+            {/* <SliderPicker
               maxValue={10}
               defaultValue={level}
               callback={position => {
@@ -331,7 +332,10 @@ const SettingsScreen = ({navigation}) => {
               sliderInnerBackgroundColor={'#EDEDED'}
               buttonStylesOverride={{marginTop: -5}}
               numberStylesOverride={{color: '#D9D9D9'}}
-            />
+            /> */}
+            <Text style={{color: '#36B199', marginLeft: 16, fontWeight: '500'}}>
+              Level {level}
+            </Text>
           </View>
           <GeneralButton
             buttonStyle={styles.buttonStyle}

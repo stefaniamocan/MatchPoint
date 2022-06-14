@@ -41,9 +41,14 @@ const MatchOverviewCard = ({
   profileStyle,
   oponentForvsGame,
   oponentForvsName,
+  oponentEloRating,
   oponentForvsPicture,
+  currentUserElo,
   profileScreenName,
 }) => {
+  const [currentUser_EloConversion, setCurrentUser_EloConversion] = useState(
+    Math.round(currentUserElo / 200),
+  );
   const navigation = useNavigation();
   const registereCurrentUserWinner = async () => {
     const gamesRef = doc(db, 'games', gameId);
@@ -61,6 +66,62 @@ const MatchOverviewCard = ({
       winnerUser: oponenetUid,
     });
   };
+
+  //calculate elo probability (outcome of the game)
+  const matchProbability = (current, oponentlevel2) => {
+    return (
+      (1.0 * 1.0) / (1 + 1.0 * Math.pow(10, (current - oponentlevel2) / 400))
+    );
+  };
+
+  //calculate elo
+  const updateSkillLevel = async currentUserWon => {
+    //calcuate probability for the oponent
+    let P_oponent = matchProbability(currentUserElo, oponentEloRating);
+    let P_current = matchProbability(oponentEloRating, currentUserElo);
+    console.log(P_oponent);
+    console.log(P_current);
+    let NewElo_oponent = 0;
+    let NewElo_current = 0;
+    if (currentUserWon) {
+      //new rating if current user wins
+      NewElo_oponent = oponentEloRating + 32 * (0 - P_oponent);
+      NewElo_current = currentUserElo + 32 * (1 - P_current);
+    } else {
+      //new rating if oponent wins
+      NewElo_oponent = oponentEloRating + 32 * (1 - P_oponent);
+      NewElo_current = currentUserElo + 32 * (0 - P_current);
+    }
+    console.log(NewElo_oponent);
+    console.log(NewElo_current);
+    //update oponent Elo
+    //round elo and if >2000 keep it 2000 if <0 keep it 0
+    const newElo = Math.round(NewElo_oponent);
+    if (newElo < 0) {
+      newElo = 0;
+    }
+    if (newElo > 2000) {
+      newElo = 2000;
+    }
+    const oponentRef = doc(db, 'users', oponentUid);
+    await updateDoc(oponentRef, {
+      eloRating: newElo,
+    });
+
+    //update Current user Elo
+    const newElo_current_rounded = Math.round(NewElo_current);
+    if (newElo_current_rounded < 0) {
+      newElo_current_rounded = 0;
+    }
+    if (newElo_current_rounded > 2000) {
+      newElo_current_rounded = 2000;
+    }
+    const currentRef = doc(db, 'users', authentication.currentUser.uid);
+    await updateDoc(currentRef, {
+      eloRating: newElo_current_rounded,
+    });
+  };
+
   return (
     <View style={styles.container}>
       <View
@@ -195,7 +256,9 @@ const MatchOverviewCard = ({
                   }}>
                   {oponentForvsName}
                 </Text>
-                <Text style={styles.level}>{oponentSkill}</Text>
+                <Text style={styles.level}>
+                  Level {currentUser_EloConversion} ({currentUserElo} elo)
+                </Text>
               </View>
             </View>
             {/* who is the winer conatiner */}
@@ -239,6 +302,7 @@ const MatchOverviewCard = ({
                     }}
                     onPress={async () => {
                       await registereOponentWinner;
+                      updateSkillLevel(false);
                       Alert.alert('Winner registered!');
                     }}
                   />
@@ -257,6 +321,7 @@ const MatchOverviewCard = ({
                     }}
                     onPress={async () => {
                       await registereCurrentUserWinner();
+                      updateSkillLevel(true);
                       Alert.alert('Winner registered!');
                     }}
                   />

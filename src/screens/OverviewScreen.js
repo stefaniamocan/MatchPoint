@@ -40,6 +40,7 @@ const OverviewScreen = ({navigation}) => {
   const [filteredGames, setFilteredGames] = useState([]);
   const [upcomingGames, setupcomingGames] = useState([]);
   const [pastGames, setpastGames] = useState([]);
+  const [eloRating, setEloRating] = useState([]);
 
   const fetchGames = async () => {
     setLoading(true);
@@ -49,6 +50,8 @@ const OverviewScreen = ({navigation}) => {
     const currentUserRef = doc(db, 'users', authentication.currentUser.uid);
     const docSnap = await getDoc(currentUserRef);
     if (docSnap.exists()) {
+      const elo = docSnap.data().eloRating;
+      setEloRating(elo);
       const games = docSnap.data().games;
       games.forEach(async game => {
         //get get based on current user game list
@@ -71,10 +74,14 @@ const OverviewScreen = ({navigation}) => {
               //check if it is upcoming game or past game
               const gameDate = docSnapGame.data().date;
               const currentDate = new Date();
+              const eloConverted = Math.round(
+                oponentSnap.data().eloRating / 200,
+              );
               const formatedDate = moment(gameDate.toDate()).format(
                 'MMM Do, h:mm a',
               );
               //upcoming
+
               if (gameDate.toDate() > currentDate) {
                 listUpcoming.push({
                   winner: false,
@@ -82,7 +89,13 @@ const OverviewScreen = ({navigation}) => {
                   id: docSnapGame.id,
                   oponentName: oponentSnap.data().name,
                   oponentPhoto: {uri: oponentSnap.data().ProfileImage},
-                  oponentSkill: 'Level ' + oponentSnap.data().level,
+                  oponentEloRating: oponentSnap.data().eloRating,
+                  oponentSkill:
+                    'Level ' +
+                    eloConverted +
+                    ' (' +
+                    oponentSnap.data().eloRating +
+                    ' elo)',
                   gameId: docSnapGame.id,
                   date: formatedDate,
                   winnerUser: 'none',
@@ -104,7 +117,13 @@ const OverviewScreen = ({navigation}) => {
                     id: docSnapGame.id,
                     oponentName: oponentSnap.data().name,
                     oponentPhoto: {uri: oponentSnap.data().ProfileImage},
-                    oponentSkill: 'Level ' + oponentSnap.data().level,
+                    oponentEloRating: oponentSnap.data().eloRating,
+                    oponentSkill:
+                      'Level ' +
+                      eloConverted +
+                      ' (' +
+                      oponentSnap.data().eloRating +
+                      ' elo)',
                     gameId: docSnapGame.id,
                     date: formatedDate,
                     winnerUser: docSnapGame.data().winnerUser,
@@ -121,7 +140,13 @@ const OverviewScreen = ({navigation}) => {
                     id: docSnapGame.id,
                     oponentName: oponentSnap.data().name,
                     oponentPhoto: {uri: oponentSnap.data().ProfileImage},
-                    oponentSkill: 'Level ' + oponentSnap.data().level,
+                    oponentEloRating: oponentSnap.data().eloRating,
+                    oponentSkill:
+                      'Level ' +
+                      eloConverted +
+                      ' (' +
+                      oponentSnap.data().eloRating +
+                      ' elo)',
                     gameId: docSnapGame.id,
                     date: formatedDate,
                     winnerUser: 'none',
@@ -205,6 +230,8 @@ const OverviewScreen = ({navigation}) => {
               location={item.location}
               winnerUser={item.winnerUser}
               profileScreenName="UserProfile"
+              oponentEloRating={item.oponentEloRating}
+              currentUserElo={eloRating}
               oponentForvsGame={authentication.currentUser.uid}
               oponentForvsName={authentication.currentUser.displayName}
               oponentForvsPicture={authentication.currentUser.photoURL}

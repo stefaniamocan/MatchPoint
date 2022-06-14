@@ -69,7 +69,7 @@ const UserProfileScreen = ({route, navigation}) => {
   const [rating, setRating] = useState(5);
   const [totalRating, settotalRating] = useState(5);
   const [totalGames, settotalGames] = useState(0);
-
+  const [sendGamelvl, setSendGamelvl] = useState(0);
   const [games, setGames] = useState([]);
   let listGames = [];
 
@@ -84,6 +84,15 @@ const UserProfileScreen = ({route, navigation}) => {
       setBio(docSnapProfile.data().bio);
       setLevel(parseInt(docSnapProfile.data().level));
       setUsername(docSnapProfile.data().name);
+      const eloConverted = Math.round(docSnapProfile.data().eloRating / 200);
+      setLevel(
+        'Level ' +
+          eloConverted +
+          ' (' +
+          docSnapProfile.data().eloRating +
+          ' elo)',
+      );
+      setSendGamelvl(docSnapProfile.data().eloRating);
       setProfileImage(docSnapProfile.data().ProfileImage);
     }
 
@@ -162,13 +171,23 @@ const UserProfileScreen = ({route, navigation}) => {
               const formatedDate = moment(gameDate.toDate()).format(
                 'MMM Do, h:mm a',
               );
+              const eloConverted = Math.round(
+                oponentSnap.data().eloRating / 200,
+              );
               listGames.push({
                 upcoming: false,
                 winner: true,
                 id: docSnapGame.id,
                 oponentName: oponentSnap.data().name,
                 oponentPhoto: {uri: oponentSnap.data().ProfileImage},
-                oponentSkill: 'Level ' + oponentSnap.data().level,
+                oponentEloRating: oponentSnap.data().eloRating,
+                oponentSkill:
+                  'Level ' +
+                  eloConverted +
+                  ' (' +
+                  oponentSnap.data().eloRating +
+                  ' elo)',
+
                 gameId: docSnapGame.id,
                 date: formatedDate,
                 winnerUser: docSnapGame.data().winnerUser,
@@ -205,7 +224,7 @@ const UserProfileScreen = ({route, navigation}) => {
                 />
                 <View style={{marginLeft: 20, marginTop: 10}}>
                   <Text style={styles.nameStyle}>{username}</Text>
-                  <Text style={styles.skillLevel}>Skill Level: {level}</Text>
+                  <Text style={styles.skillLevel}>{level}</Text>
                   <View style={{marginLeft: 10, marginTop: 15}}>
                     <View style={{flexDirection: 'row'}}>
                       <Image
@@ -328,6 +347,9 @@ const UserProfileScreen = ({route, navigation}) => {
                           gameId={games.gameId}
                           location={games.location}
                           winnerUser={games.winnerUser}
+                          currentUserElo={sendGamelvl}
+                          oponentEloRating={games.oponentEloRating}
+                          oponentSkill={games.oponentSkill}
                           oponentForvsGame={userUid}
                           oponentForvsName={username}
                           oponentForvsPicture={photoURL}

@@ -71,6 +71,7 @@ const ProfileScreen = ({navigation}) => {
   const [rating, setRating] = useState(5);
   const [totalRating, settotalRating] = useState(5);
   const [totalGames, settotalGames] = useState(0);
+  const [sendGamelvl, setSendGamelvl] = useState('');
 
   const [games, setGames] = useState([]);
 
@@ -83,7 +84,15 @@ const ProfileScreen = ({navigation}) => {
     const docSnapProfile = await getDoc(docRef);
     if (docSnapProfile.exists()) {
       setBio(docSnapProfile.data().bio);
-      setLevel(parseInt(docSnapProfile.data().level));
+      const eloConverted = Math.round(docSnapProfile.data().eloRating / 200);
+      setLevel(
+        'Level ' +
+          eloConverted +
+          ' (' +
+          docSnapProfile.data().eloRating +
+          ' elo)',
+      );
+      setSendGamelvl(docSnapProfile.data().eloRating);
       setUsername(docSnapProfile.data().name);
       setProfileImage(docSnapProfile.data().ProfileImage);
     }
@@ -129,7 +138,10 @@ const ProfileScreen = ({navigation}) => {
       const totalrate = calculateRating / list.length;
       settotalRating(list.length);
 
-      setRating(totalrate);
+      if (!isNaN(totalrate)) {
+        setRating(totalrate);
+      } else setRating(5);
+
       setLoading(false);
     }, 700);
   };
@@ -163,13 +175,22 @@ const ProfileScreen = ({navigation}) => {
               const formatedDate = moment(gameDate.toDate()).format(
                 'MMM Do, h:mm a',
               );
+              const eloConverted = Math.round(
+                oponentSnap.data().eloRating / 200,
+              );
               listGames.push({
                 upcoming: false,
                 winner: true,
                 id: docSnapGame.id,
                 oponentName: oponentSnap.data().name,
+                oponentEloRating: oponentSnap.data().eloRating,
                 oponentPhoto: {uri: oponentSnap.data().ProfileImage},
-                oponentSkill: 'Level ' + oponentSnap.data().level,
+                oponentSkill:
+                  'Level ' +
+                  eloConverted +
+                  ' (' +
+                  oponentSnap.data().eloRating +
+                  ' elo)',
                 gameId: docSnapGame.id,
                 date: formatedDate,
                 winnerUser: docSnapGame.data().winnerUser,
@@ -224,7 +245,7 @@ const ProfileScreen = ({navigation}) => {
                 />
                 <View style={{marginLeft: 20, marginTop: 10}}>
                   <Text style={styles.nameStyle}>{username}</Text>
-                  <Text style={styles.skillLevel}>Skill Level: {level}</Text>
+                  <Text style={styles.skillLevel}>{level}</Text>
                   <View style={{marginLeft: 10, marginTop: 15}}>
                     <View style={{flexDirection: 'row'}}>
                       <Image
@@ -347,6 +368,9 @@ const ProfileScreen = ({navigation}) => {
                           location={games.location}
                           winnerUser={games.winnerUser}
                           profileScreenName="UserProfile"
+                          currentUserElo={sendGamelvl}
+                          oponentEloRating={games.oponentEloRating}
+                          oponentSkill={games.oponentSkill}
                           oponentForvsGame={authentication.currentUser.uid}
                           oponentForvsName={
                             authentication.currentUser.displayName

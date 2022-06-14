@@ -84,8 +84,8 @@ const HomeScreen = ({navigation}) => {
       if (docSnapProfile.exists()) {
         user_Name = docSnapProfile.data().name;
         profilepic = docSnapProfile.data().ProfileImage;
-        skillLevel = docSnapProfile.data().level;
       }
+      const eloConverted = Math.round(docSnapProfile.data().eloRating / 200);
 
       if (user1 != authentication.currentUser.uid && !request) {
         list.push({
@@ -97,7 +97,12 @@ const HomeScreen = ({navigation}) => {
           profilePicture: {uri: profilepic},
           location: court + ', ' + location,
           skillLevel: skillLevel,
-          levelText: 'Level ' + skillLevel,
+          levelText:
+            'Level ' +
+            eloConverted +
+            ' (' +
+            docSnapProfile.data().eloRating +
+            ' elo)',
         });
       }
     });

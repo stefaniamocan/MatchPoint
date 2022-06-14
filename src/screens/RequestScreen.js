@@ -59,12 +59,20 @@ const RequestScreen = ({navigation}) => {
       requests.forEach(async request => {
         const oponentRef = doc(db, 'users', request.oponent);
         const oponentSnap = await getDoc(oponentRef);
+        const eloConverted = Math.round(oponentSnap.data().eloRating / 200);
+
         if (oponentSnap.exists()) {
           list.push({
             id: request.id,
             oponentName: oponentSnap.data().name,
             oponentPhoto: {uri: oponentSnap.data().ProfileImage},
-            oponentSkill: 'Level ' + oponentSnap.data().level,
+            oponentSkill:
+              'Level ' +
+              eloConverted +
+              ' (' +
+              oponentSnap.data().eloRating +
+              ' elo)',
+
             gameId: request.gameId,
             incoming: request.incoming,
             date: request.date,
@@ -76,7 +84,13 @@ const RequestScreen = ({navigation}) => {
               id: request.id,
               oponentName: oponentSnap.data().name,
               oponentPhoto: {uri: oponentSnap.data().ProfileImage},
-              oponentSkill: 'Level ' + oponentSnap.data().level,
+              oponentSkill:
+                'Level ' +
+                eloConverted +
+                ' (' +
+                oponentSnap.data().eloRating +
+                ' elo)',
+
               gameId: request.gameId,
               incoming: request.incoming,
               date: request.date,

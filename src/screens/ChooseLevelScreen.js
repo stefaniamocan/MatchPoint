@@ -33,7 +33,13 @@ const ChooseLevelScreen = ({navigation}) => {
   const [level, setLevel] = useState(5);
   const storeLevel = () => {
     const userDocRef = doc(db, 'users', authentication.currentUser.uid);
-    setDoc(userDocRef, {level: level}, {merge: true}).then(() => {
+    //inisalize elo rating points based on users initial skill input
+    const initial_eloRating = level * 200; //our elo system should be between 0 -2000 on a scale from 1-10
+    setDoc(
+      userDocRef,
+      {level: level, eloRating: initial_eloRating},
+      {merge: true},
+    ).then(() => {
       navigation.navigate('drawernavigationscr');
     });
   };
