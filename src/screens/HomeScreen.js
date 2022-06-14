@@ -222,6 +222,7 @@ const HomeScreen = ({navigation}) => {
               location={item.location}
               date={item.date}
               chatScreenName="ChatScreen"
+              profileScreenName="UserProfile"
             />
           )}
           ListFooterComponent={

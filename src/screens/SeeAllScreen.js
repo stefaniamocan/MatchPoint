@@ -10,6 +10,8 @@ import {
   FlatList,
 } from 'react-native';
 
+import MatchOverviewCard from '../components/MatchOverviewCard';
+
 import {TouchableOpacity} from 'react-native-gesture-handler';
 
 import Stars from 'react-native-stars';
@@ -18,13 +20,13 @@ import ReviewCard from '../components/ReviewCard';
 import ProfileGameComponent from '../components/ProfileGameComponent';
 const SeeAllScreen = ({navigation, route}) => {
   const [rating, setRating] = useState(5);
-  const {list, games} = route.params;
+  const {list, games, stars} = route.params;
 
   return (
     <View style={styles.container}>
-      <View style={{marginHorizontal: 15}}>
-        {!games ? (
-          <>
+      {!games ? (
+        <>
+          <View style={{marginHorizontal: 15}}>
             <FlatList
               ListHeaderComponent={
                 <>
@@ -53,7 +55,8 @@ const SeeAllScreen = ({navigation, route}) => {
                       marginTop: 10,
                     }}>
                     <Stars
-                      display={5}
+                      half={true}
+                      display={stars}
                       spacing={3}
                       count={5}
                       starSize={15}
@@ -68,7 +71,7 @@ const SeeAllScreen = ({navigation, route}) => {
                           fontWeight: '500',
                           fontSize: 12,
                         }}>
-                        {rating} out of 5
+                        {stars} out of 5
                       </Text>
                     </View>
                   </View>
@@ -93,9 +96,11 @@ const SeeAllScreen = ({navigation, route}) => {
                 </>
               }
             />
-          </>
-        ) : (
-          <>
+          </View>
+        </>
+      ) : (
+        <>
+          <View style={{marginHorizontal: 5}}>
             <FlatList
               ListHeaderComponent={
                 <>
@@ -114,19 +119,23 @@ const SeeAllScreen = ({navigation, route}) => {
                 </>
               }
               nestedScrollEnabled={true}
-              keyExtractor={item => item.id}
+              keyExtractor={(item, index) => {
+                return item.id;
+              }}
               data={list}
               renderItem={({item}) => (
-                <ProfileGameComponent
-                  currentUserName={item.currentUserName}
-                  currentUserPhoto={item.currentUserPhoto}
-                  oponentUserName={item.oponentUserName}
-                  oponentUserPhoto={item.oponentUserPhoto}
-                  set1={item.set1}
-                  set2={item.set2}
-                  set3={item.set3}
-                  location={item.location}
+                <MatchOverviewCard
+                  key={item.id}
+                  upcoming={false}
+                  winner={true}
+                  oponentUid={item.oponentUid}
+                  oponentName={item.oponentName}
+                  oponentPhoto={item.oponentPhoto}
+                  //oponentSkill={gamesoponentSkill}
                   date={item.date}
+                  gameId={item.gameId}
+                  location={item.location}
+                  winnerUser={item.winnerUser}
                 />
               )}
               ListFooterComponent={
@@ -135,9 +144,9 @@ const SeeAllScreen = ({navigation, route}) => {
                 </>
               }
             />
-          </>
-        )}
-      </View>
+          </View>
+        </>
+      )}
     </View>
   );
 };

@@ -159,11 +159,18 @@ const NewMatchCard = ({
   return (
     <View style={styles.container}>
       <View style={styles.flexView}>
-        <Image
-          source={profilePicture}
-          resizeMode="contain"
-          style={styles.profilePicture}
-        />
+        <TouchableOpacity
+          onPress={() =>
+            navigation.push(profileScreenName, {
+              userUid: userUid,
+            })
+          }>
+          <Image
+            source={profilePicture}
+            resizeMode="contain"
+            style={styles.profilePicture}
+          />
+        </TouchableOpacity>
         <View>
           <Text style={styles.name}>{userName}</Text>
           <Text style={styles.level}>{level}</Text>

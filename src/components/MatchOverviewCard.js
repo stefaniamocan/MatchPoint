@@ -8,6 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import GeneralButton from './GeneralButton';
+import {useNavigation, NavigationContainer} from '@react-navigation/native';
 import {db} from '../api/firebase';
 import {
   collection,
@@ -35,9 +36,15 @@ const MatchOverviewCard = ({
   gameId,
   date,
   winnerUser,
-  oponenetUid,
+  oponentUid,
   location,
+  profileStyle,
+  oponentForvsGame,
+  oponentForvsName,
+  oponentForvsPicture,
+  profileScreenName,
 }) => {
+  const navigation = useNavigation();
   const registereCurrentUserWinner = async () => {
     const gamesRef = doc(db, 'games', gameId);
     console.log(gameId);
@@ -101,8 +108,8 @@ const MatchOverviewCard = ({
             <View style={styles.flexView}>
               <TouchableOpacity
                 onPress={() =>
-                  navigation.push(screenName, {
-                    userUid: useruid,
+                  navigation.push(profileScreenName, {
+                    userUid: oponentUid,
                   })
                 }>
                 <Image
@@ -129,8 +136,8 @@ const MatchOverviewCard = ({
               }}>
               <TouchableOpacity
                 onPress={() =>
-                  navigation.push(screenName, {
-                    userUid: useruid,
+                  navigation.push(profileScreenName, {
+                    userUid: oponentUid,
                   })
                 }
                 style={{alignItems: 'center'}}>
@@ -169,7 +176,7 @@ const MatchOverviewCard = ({
               </Text>
               <View style={{alignItems: 'center'}}>
                 <Image
-                  source={{uri: authentication.currentUser.photoURL}}
+                  source={{uri: oponentForvsPicture}}
                   resizeMode="contain"
                   style={{
                     height: 50,
@@ -186,7 +193,7 @@ const MatchOverviewCard = ({
                     fontWeight: '500',
                     color: '#707070',
                   }}>
-                  {authentication.currentUser.displayName}
+                  {oponentForvsName}
                 </Text>
                 <Text style={styles.level}>{oponentSkill}</Text>
               </View>
@@ -205,10 +212,7 @@ const MatchOverviewCard = ({
                     alignItems: 'center',
                     fontSize: 13,
                     marginRight: 5,
-                    marginLeft:
-                      winnerUser == authentication.currentUser.uid
-                        ? 'auto'
-                        : 10,
+                    marginLeft: winnerUser == oponentForvsGame ? 'auto' : 10,
                   }}>
                   <Text>Winner</Text>
                 </View>

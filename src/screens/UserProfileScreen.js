@@ -52,88 +52,144 @@ import ReviewCard from '../components/ReviewCard';
 import moment from 'moment';
 import NoReviews from '../components/NoReviews';
 import ReviewComponent from '../components/ReviewComponent';
+import MatchOverviewCard from '../components/MatchOverviewCard';
 
-const ProfileScreen2 = ({route, navigation}) => {
+const UserProfileScreen = ({route, navigation}) => {
   const {userUid} = route.params;
-  //useStates
-  //onst userUid = authentication.currentUser.uid;
+
   const [loading, setLoading] = useState(false);
-  const [photoURL, setProfileImage] = useState();
+
   const [level, setLevel] = useState();
   const [reviews, setReviews] = useState([]);
 
+  const [photoURL, setProfileImage] = useState();
   const [username, setUsername] = useState();
-  const [email, setEmail] = useState();
-
   const [bio, setBio] = useState('');
 
   const [rating, setRating] = useState(5);
   const [totalRating, settotalRating] = useState(5);
-  const [totalGames, settotalGames] = useState(20);
+  const [totalGames, settotalGames] = useState(0);
+
+  const [games, setGames] = useState([]);
+  let listGames = [];
 
   //fetch data
-  // const fetchData = async () => {
-  //   setLoading(true);
+  const fetchData = async () => {
+    setLoading(true);
+    fetchGames();
+    //get user profile Data
+    const docRef = doc(db, 'users', userUid);
+    const docSnapProfile = await getDoc(docRef);
+    if (docSnapProfile.exists()) {
+      setBio(docSnapProfile.data().bio);
+      setLevel(parseInt(docSnapProfile.data().level));
+      setUsername(docSnapProfile.data().name);
+      setProfileImage(docSnapProfile.data().ProfileImage);
+    }
 
-  //   //get user profile Data
-  //   const docRef = doc(db, 'users', userUid);
-  //   const docSnapProfile = await getDoc(docRef);
-  //   if (docSnapProfile.exists()) {
-  //     setBio(docSnapProfile.data().bio);
-  //     setLevel(parseInt(docSnapProfile.data().level));
-  //     setUsername(docSnapProfile.data().name);
-  //     setProfileImage(docSnapProfile.data().ProfileImage);
-  //   }
+    //get reviews + total ratings
+    const subColRef = query(
+      collection(db, 'reviews', userUid, 'recivedRatings'),
+      orderBy('postTime', 'asc'),
+    );
 
-  //   //get reviews + total ratings
-  //   const subColRef = query(
-  //     collection(db, 'reviews', userUid, 'recivedRatings'),
-  //     orderBy('postTime', 'asc'),
-  //   );
+    const querySnapshot = await getDocs(subColRef);
+    let list = [];
+    let first = '';
+    let second = '';
+    var calculateRating = 0;
+    await querySnapshot.forEach(async doc1 => {
+      let id = doc1.id;
+      const docRef = doc(db, 'users', id);
+      const docSnapProfile = await getDoc(docRef);
+      if (docSnapProfile.exists()) {
+        first = docSnapProfile.data().name;
+        second = docSnapProfile.data().ProfileImage;
+      }
 
-  //   const querySnapshot = await getDocs(subColRef);
-  //   const list = [];
-  //   let calculateRating = 0;
-  //   await querySnapshot.forEach(doc => {
-  //     const {postTime, rating, userName} = doc.data();
-  //     //const date = postTime.toDate().toDateString();
-  //     const date = moment(postTime.toDate()).fromNow();
-  //     calculateRating = calculateRating + rating;
-  //     list.push({
-  //       id: doc.id,
-  //       review_userPhotoURL: photoURL,
-  //       review_userName: doc.userName,
-  //       review_userRating: rating,
-  //       review_userUid: doc.id,
-  //       review_time: date,
-  //     });
-  //   });
-  //   await setReviews(list);
-  //   await settotalRating(list.length);
-  //   const totalrate = calculateRating / list.length;
-  //   console.log(totalrate);
-  //   await setRating(totalrate);
+      const {postTime, rating} = doc1.data();
+      //const date = postTime.toDate().toDateString();
+      const date = moment(postTime.toDate()).fromNow();
 
-  //   setLoading(false);
-  // };
+      list.push({
+        id: doc1.id,
+        review_userPhotoURL: second,
+        review_userName: first,
+        review_userRating: rating,
+        review_userUid: doc1.id,
+        review_time: date,
+      });
+      setReviews(list);
+      calculateRating = calculateRating + rating;
+      //console.log(calculateRating);
+    });
 
-  //update data before page is rendered
+    setTimeout(() => {
+      const totalrate = calculateRating;
+      settotalRating(list.length);
+      setGames(listGames);
+      settotalGames(listGames.length);
+      setRating(totalrate);
+      setLoading(false);
+    }, 700);
+  };
+
+  const fetchGames = async () => {
+    const currentUserRef = doc(db, 'users', userUid);
+    const docSnap = await getDoc(currentUserRef);
+    if (docSnap.exists()) {
+      const games = docSnap.data().games;
+      games.forEach(async game => {
+        //get get based on current user game list
+        const gamesRef = doc(db, 'games', game);
+        const docSnapGame = await getDoc(gamesRef);
+        let oponentUid = '';
+        if (docSnapGame.exists()) {
+          if (docSnapGame.data().winnerUser) {
+            //fet oponent uid
+            if (docSnapGame.data().user1 == userUid) {
+              oponentUid = docSnapGame.data().user2;
+            } else {
+              oponentUid = docSnapGame.data().user1;
+            }
+            //get oponents details
+            const oponentRef = doc(db, 'users', oponentUid);
+            const oponentSnap = await getDoc(oponentRef);
+            if (oponentSnap.exists()) {
+              //check if it is upcoming game or past game
+              const gameDate = docSnapGame.data().date;
+              const currentDate = new Date();
+              const formatedDate = moment(gameDate.toDate()).format(
+                'MMM Do, h:mm a',
+              );
+              listGames.push({
+                upcoming: false,
+                winner: true,
+                id: docSnapGame.id,
+                oponentName: oponentSnap.data().name,
+                oponentPhoto: {uri: oponentSnap.data().ProfileImage},
+                oponentSkill: 'Level ' + oponentSnap.data().level,
+                gameId: docSnapGame.id,
+                date: formatedDate,
+                winnerUser: docSnapGame.data().winnerUser,
+                oponentUid: oponentUid,
+                location:
+                  docSnapGame.data().court + ', ' + docSnapGame.data().location,
+              });
+            }
+          }
+        }
+      });
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      //fetchData();
+      console.log(userUid);
+      fetchData();
     });
     return unsubscribe;
   }, [navigation]);
-
-  const updateUserCollection = async () => {
-    const docRef = doc(db, 'users', authentication.currentUser.uid);
-    await updateDoc(docRef, {
-      gender: gender,
-      name: username,
-      level: level,
-      bio: bio,
-    });
-  };
 
   return (
     <View style={styles.app}>
@@ -202,46 +258,101 @@ const ProfileScreen2 = ({route, navigation}) => {
                   </View>
                 </View>
               </View>
-              <ReviewComponent />
+              {/* Rate user */}
+              <ReviewComponent uid={userUid} />
               <View style={styles.box}>
-                <Text style={styles.h3Style}>Description</Text>
-                <Text style={styles.bioStyle}>{bio}</Text>
-                <Text style={{marginBottom: 20, ...styles.h3Style}}>
-                  Reviews
-                </Text>
+                <View style={{paddingHorizontal: 21}}>
+                  <Text style={styles.h3Style}>Description</Text>
+                  <Text style={styles.bioStyle}>{bio}</Text>
+                  <Text style={{marginBottom: 20, ...styles.h3Style}}>
+                    Reviews
+                  </Text>
+                </View>
                 {reviews.length > 0 ? (
                   <>
                     {reviews.slice(0, 3).map(review => {
                       return (
-                        <ReviewCard
-                          key={review.id}
-                          userPhotoURL={review.review_userPhotoURL}
-                          userName={review.review_userName}
-                          userRating={review.review_userRating}
-                          useruid={review.review_userUid}
-                          postTime={review.review_time}
-                          screenName="UserProfile"
-                        />
+                        <View key={review.id} style={{paddingHorizontal: 21}}>
+                          <ReviewCard
+                            key={review.id}
+                            userPhotoURL={review.review_userPhotoURL}
+                            userName={review.review_userName}
+                            userRating={review.review_userRating}
+                            useruid={review.review_userUid}
+                            postTime={review.review_time}
+                            screenName="UserProfile"
+                          />
+                        </View>
                       );
                     })}
-                    <TextButton
-                      containerStyle={{alignSelf: 'flex-end'}}
-                      textStyle={styles.registerText}
-                      boldText={'View all'}
-                      onPress={() =>
-                        navigation.navigate('SeeAllScreen', reviews)
-                      }
-                    />
+                    <View style={{paddingHorizontal: 21}}>
+                      <TextButton
+                        containerStyle={{alignSelf: 'flex-end'}}
+                        textStyle={styles.registerText}
+                        boldText={'View all'}
+                        onPress={() =>
+                          navigation.navigate('SeeAllScreen', {
+                            list: reviews,
+                            games: false,
+                            stars: rating,
+                          })
+                        }
+                      />
+                    </View>
                   </>
                 ) : (
                   <>
-                    <NoReviews reviews={true} />
+                    <View style={{paddingHorizontal: 21}}>
+                      <NoReviews reviews={true} />
+                    </View>
                   </>
                 )}
-                <Text style={{marginBottom: 20, ...styles.h3Style}}>
-                  Past Games
-                </Text>
-                <NoReviews reviews={false} />
+                <View style={{paddingHorizontal: 21}}>
+                  <Text style={{marginBottom: 20, ...styles.h3Style}}>
+                    Past Games
+                  </Text>
+                </View>
+                {games.length > 0 ? (
+                  <>
+                    {games.map(games => {
+                      return (
+                        <MatchOverviewCard
+                          key={games.id}
+                          upcoming={false}
+                          winner={true}
+                          oponentUid={games.oponentUid}
+                          oponentName={games.oponentName}
+                          oponentPhoto={games.oponentPhoto}
+                          //oponentSkill={gamesoponentSkill}
+                          date={games.date}
+                          gameId={games.gameId}
+                          location={games.location}
+                          winnerUser={games.winnerUser}
+                          oponentForvsGame={userUid}
+                          oponentForvsName={username}
+                          oponentForvsPicture={photoURL}
+                        />
+                      );
+                    })}
+                    <View style={{paddingHorizontal: 21, marginTop: 20}}>
+                      <TextButton
+                        containerStyle={{alignSelf: 'flex-end'}}
+                        textStyle={styles.registerText}
+                        boldText={'View all'}
+                        onPress={() =>
+                          navigation.navigate('SeeAllScreen', {
+                            list: games,
+                            games: true,
+                          })
+                        }
+                      />
+                    </View>
+                  </>
+                ) : (
+                  <>
+                    <NoReviews reviews={false} />
+                  </>
+                )}
               </View>
             </View>
           </View>
@@ -262,7 +373,8 @@ const styles = StyleSheet.create({
   },
   container: {
     marginTop: 30,
-    marginHorizontal: 20,
+    marginHorizontal: 18,
+
     marginBottom: 100,
   },
 
@@ -287,8 +399,8 @@ const styles = StyleSheet.create({
     height: 45,
   },
   box: {
-    padding: 25,
     shadowColor: '#000',
+    paddingVertical: 20,
     shadowOffset: {
       width: 0,
       height: 1,
@@ -315,4 +427,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileScreen2;
+export default UserProfileScreen;

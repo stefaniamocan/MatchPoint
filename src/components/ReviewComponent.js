@@ -3,9 +3,40 @@ import React, {useState} from 'react';
 import {StyleSheet, TextInput, View, Text, Image, Alert} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import Feather from 'react-native-vector-icons/Feather';
+import {db} from '../api/firebase';
 import Stars from 'react-native-stars';
+import {
+  collection,
+  getDoc,
+  setDoc,
+  doc,
+  addDoc,
+  getDocs,
+  where,
+  query,
+  toDate,
+  orderBy,
+  limit,
+} from 'firebase/firestore';
 import {useNavigation, NavigationContainer} from '@react-navigation/native';
+import {authentication} from '../api/firebase';
+
 const ReviewComponent = ({reviews, uid}) => {
+  const [ratingStar, setRating] = useState(0);
+  const storeRating = async val => {
+    const date = new Date();
+    const reviewRef = doc(db, 'reviews', uid);
+    const subCollectionRef = doc(
+      reviewRef,
+      'recivedRatings',
+      authentication.currentUser.uid,
+    );
+
+    await setDoc(subCollectionRef, {
+      postTime: date,
+      rating: val,
+    });
+  };
   const saveRating = val => {
     Alert.alert(
       'Post Rating',
@@ -14,6 +45,9 @@ const ReviewComponent = ({reviews, uid}) => {
         {
           text: 'Save',
           style: 'default',
+          onPress: () => {
+            storeRating(val);
+          },
         },
       ],
     );
@@ -21,8 +55,6 @@ const ReviewComponent = ({reviews, uid}) => {
 
   //post review
 
-  const postreview = async () => {};
-  const [rating, setRating] = useState(0);
   return (
     <View
       style={{
@@ -46,7 +78,7 @@ const ReviewComponent = ({reviews, uid}) => {
       </Text>
       <View style={{marginTop: 15, marginBottom: 10}}>
         <Stars
-          default={rating}
+          default={ratingStar}
           update={val => {
             [setRating(val), saveRating(val)];
           }}

@@ -204,7 +204,10 @@ const OverviewScreen = ({navigation}) => {
               gameId={item.gameId}
               location={item.location}
               winnerUser={item.winnerUser}
-              screenName="UserProfile"
+              profileScreenName="UserProfile"
+              oponentForvsGame={authentication.currentUser.uid}
+              oponentForvsName={authentication.currentUser.displayName}
+              oponentForvsPicture={authentication.currentUser.photoURL}
             />
           )}
           ListFooterComponent={
