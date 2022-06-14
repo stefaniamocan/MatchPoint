@@ -118,7 +118,6 @@ const RequestScreen = ({navigation}) => {
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       fetchGames();
-      console.log(games);
     });
     return unsubscribe;
   }, [navigation]);
@@ -145,10 +144,13 @@ const RequestScreen = ({navigation}) => {
             </>
           }
           nestedScrollEnabled={true}
-          keyExtractor={item => item.id}
+          keyExtractor={(item, index) => {
+            return item.id;
+          }}
           data={filteredGames}
           renderItem={({item}) => (
             <RequestComponent
+              key={item.id}
               visible={true}
               useruid={item.oponentUid}
               userName={item.oponentName}
@@ -158,6 +160,7 @@ const RequestScreen = ({navigation}) => {
               gameId={item.gameId}
               incoming={item.incoming}
               screenName="UserProfile"
+              chatScreenName="ChatScreen"
             />
           )}
           ListFooterComponent={

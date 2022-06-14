@@ -10,9 +10,10 @@ import {
   ScrollView,
   FlatList,
 } from 'react-native';
-
+import {MaterialIndicator} from 'react-native-indicators';
 import NewMatchCard from '../components/NewMatchCard';
 import {db} from '../api/firebase';
+import {authentication} from '../api/firebase';
 import {
   collection,
   getDoc,
@@ -29,49 +30,216 @@ import {
   limit,
 } from 'firebase/firestore';
 import DatePicker from 'react-native-date-picker';
-
+import MatchOverviewCard from '../components/MatchOverviewCard';
+import {Item} from 'react-native-paper/lib/typescript/components/List/List';
+import moment from 'moment';
+import SwitchCustom from '../components/SwitchCustom';
 const OverviewScreen = ({navigation}) => {
-  const [user, setuser] = useState('r');
-  const [games, setGames] = useState([{id: 2}]);
+  const [loading, setLoading] = useState(false);
+  const [nogames, setGames] = useState([]);
+  const [filteredGames, setFilteredGames] = useState([]);
+  const [upcomingGames, setupcomingGames] = useState([]);
+  const [pastGames, setpastGames] = useState([]);
 
-  return <View style={styles.container}></View>;
+  const fetchGames = async () => {
+    setLoading(true);
+    let listUpcoming = [];
+    let listPast = [];
+    let listnoWinner = [];
+    const currentUserRef = doc(db, 'users', authentication.currentUser.uid);
+    const docSnap = await getDoc(currentUserRef);
+    if (docSnap.exists()) {
+      const games = docSnap.data().games;
+      games.forEach(async game => {
+        //get get based on current user game list
+        const gamesRef = doc(db, 'games', game);
+        const docSnapGame = await getDoc(gamesRef);
+        let oponentUid = '';
+        if (docSnapGame.exists()) {
+          //if it has an oponent show game => if not it still waits for request => don't show it
+          if (docSnapGame.data().user2) {
+            //fet oponent uid
+            if (docSnapGame.data().user1 == authentication.currentUser.uid) {
+              oponentUid = docSnapGame.data().user2;
+            } else {
+              oponentUid = docSnapGame.data().user1;
+            }
+            //get oponents details
+            const oponentRef = doc(db, 'users', oponentUid);
+            const oponentSnap = await getDoc(oponentRef);
+            if (oponentSnap.exists()) {
+              //check if it is upcoming game or past game
+              const gameDate = docSnapGame.data().date;
+              const currentDate = new Date();
+              const formatedDate = moment(gameDate.toDate()).format(
+                'MMM Do, h:mm a',
+              );
+              //upcoming
+              if (gameDate.toDate() > currentDate) {
+                listUpcoming.push({
+                  winner: false,
+                  upcoming: true,
+                  id: docSnapGame.id,
+                  oponentName: oponentSnap.data().name,
+                  oponentPhoto: {uri: oponentSnap.data().ProfileImage},
+                  oponentSkill: 'Level ' + oponentSnap.data().level,
+                  gameId: docSnapGame.id,
+                  date: formatedDate,
+                  winnerUser: 'none',
+                  oponentUid: oponentUid,
+                  location:
+                    docSnapGame.data().court +
+                    ', ' +
+                    docSnapGame.data().location,
+                });
+              }
+              //is a past game
+              else {
+                //game has results
+
+                if (docSnapGame.data().winnerUser) {
+                  listPast.push({
+                    upcoming: false,
+                    winner: true,
+                    id: docSnapGame.id,
+                    oponentName: oponentSnap.data().name,
+                    oponentPhoto: {uri: oponentSnap.data().ProfileImage},
+                    oponentSkill: 'Level ' + oponentSnap.data().level,
+                    gameId: docSnapGame.id,
+                    date: formatedDate,
+                    winnerUser: docSnapGame.data().winnerUser,
+                    oponentUid: oponentUid,
+                    location:
+                      docSnapGame.data().court +
+                      ', ' +
+                      docSnapGame.data().location,
+                  });
+                } else {
+                  listnoWinner.push({
+                    upcoming: false,
+                    winner: false,
+                    id: docSnapGame.id,
+                    oponentName: oponentSnap.data().name,
+                    oponentPhoto: {uri: oponentSnap.data().ProfileImage},
+                    oponentSkill: 'Level ' + oponentSnap.data().level,
+                    gameId: docSnapGame.id,
+                    date: formatedDate,
+                    winnerUser: 'none',
+                    oponentUid: oponentUid,
+                    location:
+                      docSnapGame.data().court +
+                      ', ' +
+                      docSnapGame.data().location,
+                  });
+                  setGames(listnoWinner);
+                }
+              }
+            }
+          }
+        }
+      });
+
+      setupcomingGames(listUpcoming);
+      setFilteredGames(listUpcoming);
+
+      //connactenete the past games with the ones who have no winner first
+    }
+    setTimeout(() => {
+      if (true) {
+        console.log(listPast);
+        console.log(listnoWinner);
+        //const provlits = [...nogames, ...listPast];
+        const provlits = listnoWinner.concat(listPast);
+        setpastGames(provlits);
+      } else {
+        setpastGames(listPast);
+      }
+      setLoading(false);
+    }, 2000);
+  };
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchGames();
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  const filter = index => {
+    if (index == 1) {
+      setFilteredGames(upcomingGames);
+    }
+    if (index == 2) {
+      setFilteredGames(pastGames);
+    }
+  };
+  return (
+    <View style={styles.container}>
+      {!loading ? (
+        <FlatList
+          ListHeaderComponent={
+            <>
+              <SwitchCustom
+                selectionMode={1}
+                option1={'Upcoming'}
+                option2={'Past Games'}
+                onSelectSwitch={filter}
+              />
+            </>
+          }
+          nestedScrollEnabled={true}
+          keyExtractor={(item, index) => {
+            return item.id;
+          }}
+          data={filteredGames}
+          renderItem={({item}) => (
+            <MatchOverviewCard
+              key={item.id}
+              upcoming={item.upcoming}
+              winner={item.winner}
+              oponentUid={item.oponentUid}
+              oponentName={item.oponentName}
+              oponentPhoto={item.oponentPhoto}
+              oponentSkill={item.oponentSkill}
+              date={item.date}
+              gameId={item.gameId}
+              location={item.location}
+              winnerUser={item.winnerUser}
+              screenName="UserProfile"
+            />
+          )}
+          ListFooterComponent={
+            <>
+              <View style={{marginTop: 100}}></View>
+            </>
+          }
+        />
+      ) : (
+        <MaterialIndicator
+          size={40}
+          color="#36B199"
+          style={{
+            marginTop: 230,
+            flex: 1,
+            alignSelf: 'center',
+          }}></MaterialIndicator>
+      )}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
-
-    height: '100%',
   },
-  profilePicture: {
-    height: 60,
-    width: 60,
-    resizeMode: 'cover',
-    borderRadius: 10,
-    marginRight: 5,
+  greetingText: {
+    color: '#000000',
+    fontWeight: '600',
+    fontSize: 25,
+    marginLeft: 5,
   },
-
-  flexView: {
-    flexDirection: 'row',
-  },
-
-  name: {
-    marginLeft: 8,
+  upcomingMatchesText: {
+    color: '#767676',
     fontSize: 17,
-    fontWeight: '500',
-    color: '#707070',
-  },
-  level: {
-    marginTop: -2,
-    color: '#B4B4B4',
-    fontSize: 13,
-    marginLeft: 8,
-  },
-  messageicon: {
-    tintColor: '#B4B4B4',
-    height: 30,
-    width: 30,
-    marginLeft: 'auto',
   },
 });
 export default OverviewScreen;

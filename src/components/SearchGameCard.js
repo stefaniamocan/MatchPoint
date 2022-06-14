@@ -10,21 +10,26 @@ import {
 import DatePicker from 'react-native-date-picker';
 import ModalDropdown from 'react-native-modal-dropdown';
 
-const SearchGameCard = ({pictureSource, cityLocation, name, level, data}) => {
+const SearchGameCard = ({
+  pictureSource,
+  cityLocation,
+  name,
+  level,
+  data,
+  onSearch,
+}) => {
   const [openDate, setOpenDate] = useState(false);
   const [openTime, setOpenTime] = useState(false);
   const [date, setDate] = useState(new Date());
   const [location, setLocation] = useState();
-  const initialValues = [{id: 'pizza', value: 3}];
-  const [pizzas, setPizzas] = useState(initialValues);
-  const [minSkill, setminSkill] = useState();
-  const [maxSkill, setmaxSkill] = useState();
-  const pizzaNumbers = [{id: 'pizza', label: '', min: 0, max: 99}];
+
+  const [minSkill, setminSkill] = useState(1);
+  const [maxSkill, setmaxSkill] = useState(10);
 
   const setValue = value => {
     setminSkill(value);
-    console.log(value);
   };
+
   return (
     <View style={styles.container}>
       <View style={styles.cardView}>
@@ -171,7 +176,8 @@ const SearchGameCard = ({pictureSource, cityLocation, name, level, data}) => {
           borderBottomRightRadius: 15,
           borderBottomLeftRadius: 15,
         }}>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => onSearch(location, minSkill, maxSkill, date)}>
           <Text
             style={{
               color: 'white',

@@ -28,8 +28,9 @@ const SearchScreen = ({navigation}) => {
   const searchFilter = text => {
     if (text) {
       const newData = list.filter(item => {
-        const itemData = item.userName;
-        const textData = text;
+        const itemData = item.userName.toLowerCase();
+        const textData = text.toLowerCase();
+        console.log(itemData.indexOf(textData) > -1);
         return itemData.indexOf(textData) > -1;
       });
       setfilderedlist(newData);
@@ -101,6 +102,7 @@ const SearchScreen = ({navigation}) => {
               <TextInput
                 style={{flex: 1, padding: 7}}
                 placeholder="Search Users"
+                value={search}
                 onChangeText={text => searchFilter(text)}
               />
             </View>

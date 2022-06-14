@@ -27,6 +27,15 @@ import {
 } from 'firebase/firestore';
 import {authentication} from '../api/firebase';
 import {useNavigation, NavigationContainer} from '@react-navigation/native';
+import {
+  getDatabase,
+  ref as ref_database,
+  set as set_database,
+  get as get_database,
+  update as update_databse,
+  push,
+} from 'firebase/database';
+import {realtimedb} from '../api/firebase';
 const RequestComponent = ({
   gameId,
   useruid,
@@ -36,10 +45,73 @@ const RequestComponent = ({
   profilePicture,
   date,
   incoming,
+  chatScreenName,
   ...rest
 }) => {
   const navigation = useNavigation();
+  //intialize chat
+  const inisalizeChat = async () => {
+    let chatroomId = '';
+    const currentUserdb = await get_database(
+      ref_database(
+        realtimedb,
+        `users/${authentication.currentUser.uid}/members/${useruid}`,
+      ),
+    );
 
+    if (!currentUserdb.val()) {
+      const newChatroomRef = await push(ref_database(realtimedb, 'chatrooms'), {
+        user1: authentication.currentUser.uid,
+        user2: useruid,
+      });
+      chatroomId = newChatroomRef.key;
+      await set_database(
+        ref_database(
+          realtimedb,
+          `users/${authentication.currentUser.uid}/members/${useruid}`,
+        ),
+        {
+          chatRoomId: newChatroomRef.key,
+          username: userName,
+          profile_picture: profilePicture.uri,
+          lastMessage: [
+            {
+              createdAt: new Date(),
+              text: 'empty',
+            },
+          ],
+        },
+      );
+
+      await set_database(
+        ref_database(
+          realtimedb,
+          `users/${useruid}/members/${authentication.currentUser.uid}`,
+        ),
+        {
+          chatRoomId: newChatroomRef.key,
+          username: authentication.currentUser.displayName,
+          profile_picture: authentication.currentUser.photoURL,
+          lastMessage: [
+            {
+              createdAt: new Date(),
+              text: 'empty',
+            },
+          ],
+        },
+      );
+    }
+  };
+  const message = async () => {
+    await inisalizeChat();
+
+    navigation.push(chatScreenName, {
+      reciverUserUid: useruid,
+      reciverProfilePicture: profilePicture.uri,
+      reciverUserName: userName,
+    });
+  };
+  //acept or decline request
   const declineCurrent = async () => {
     const currentuserRef = doc(db, 'users', authentication.currentUser.uid);
     await updateDoc(currentuserRef, {
@@ -146,10 +218,16 @@ const RequestComponent = ({
             <Text style={styles.level}>{level}</Text>
           </View>
 
-          <Image
-            source={require('../assets/message.png')}
-            style={styles.messageicon}
-          />
+          <TouchableOpacity
+            style={{marginLeft: 'auto'}}
+            onPress={() => {
+              message();
+            }}>
+            <Image
+              source={require('../assets/message.png')}
+              style={styles.messageicon}
+            />
+          </TouchableOpacity>
         </View>
         {incoming ? (
           <>

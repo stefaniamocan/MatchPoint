@@ -10,6 +10,7 @@ import {
   ScrollView,
   FlatList,
   Image,
+  Alert,
 } from 'react-native';
 import Input from '../components/Input';
 import GeneralButton from '../components/GeneralButton';
@@ -42,16 +43,14 @@ import {firebase} from '@react-native-firebase/firestore';
 import {MaterialIndicator} from 'react-native-indicators';
 import moment from 'moment';
 import SearchGameCard from '../components/SearchGameCard';
+import {max} from 'react-native-reanimated';
 var {Platform} = React;
 
 const HomeScreen = ({navigation}) => {
-  const [email, setEmail] = useState('');
   const [games, setGames] = useState(null);
+  const [filteredGames, setFilteredGames] = useState([]);
   const [userLevel, setUserLevel] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [upcomingName, setupcomingName] = useState(null);
-  const [upcomingLevel, setupcomingLevel] = useState(null);
-  const [upcomingDate, setupcomingDate] = useState(null);
   const [userName, setUserName] = useState(
     authentication.currentUser.displayName,
   );
@@ -97,30 +96,62 @@ const HomeScreen = ({navigation}) => {
           date: date2,
           profilePicture: {uri: profilepic},
           location: court + ', ' + location,
-          level: 'Skill level: ' + skillLevel,
+          skillLevel: skillLevel,
+          levelText: 'Level ' + skillLevel,
         });
       }
-      console.log('list2');
-      console.log(list);
-      setGames(list);
     });
 
     setTimeout(
-      () => setLoading(false),
+      () => {
+        setGames(list);
+        setFilteredGames(list);
+        setLoading(false);
+      },
 
-      5000,
+      1500,
     );
   };
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       fetchGames();
-      console.log('fghjk');
-      console.log(games);
     });
 
     return unsubscribe;
   }, [navigation]);
+
+  const filter = (location, minSkill, maxSkill, date) => {
+    setFilteredGames(games);
+    if (location && minSkill && maxSkill && date) {
+      const newData = games.filter(item => {
+        const date2 = moment(date).format('MMM Do, h:mm a');
+        console.log(date2);
+        const locationBool = item.location === location;
+        const skill =
+          minSkill <= item.skillLevel && maxSkill >= item.skillLevel;
+        const datebool = item.date === date2;
+        return locationBool && skill && datebool;
+      });
+
+      if (newData.length === 0) {
+        Alert.alert('No results found', 'You can try a new search', [
+          {
+            text: 'New Search',
+            onPress: () => {
+              setFilteredGames(games);
+            },
+            style: 'save',
+          },
+        ]);
+      }
+
+      setFilteredGames(newData);
+    } else {
+      Alert.alert('Make sure you complete all fileds');
+      setFilteredGames(games);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -155,21 +186,9 @@ const HomeScreen = ({navigation}) => {
                   Hi,
                   {' ' + userName.substring(0, userName.indexOf(' '))}
                 </Text>
-                {/* <Text
-                  style={{
-                    // color: '#AEAEAE',
-                    color: '#000',
-                    marginTop: 20,
-                    fontWeight: '400',
-                    marginLeft: 5,
-                    fontStyle: 'italic',
 
-                    fontSize: 15,
-                  }}>
-                  Set the details and find new games
-                </Text> */}
                 <View style={{marginTop: 18}}></View>
-                <SearchGameCard />
+                <SearchGameCard onSearch={filter} />
                 <View style={{marginTop: 20}}>
                   <Text
                     style={{
@@ -187,15 +206,18 @@ const HomeScreen = ({navigation}) => {
             </>
           }
           nestedScrollEnabled={true}
-          keyExtractor={item => item.id}
-          data={games}
+          keyExtractor={(item, index) => {
+            return index.toString();
+          }}
+          data={filteredGames}
           renderItem={({item}) => (
             <NewMatchCard
+              key={item.id}
               visible={true}
               userUid={item.userUid}
               docid={item.docid}
               userName={item.userName}
-              level={item.level}
+              level={item.levelText}
               profilePicture={item.profilePicture}
               location={item.location}
               date={item.date}
